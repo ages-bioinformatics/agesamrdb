@@ -1,0 +1,23 @@
+Resistance gene	Identity	Alignment Length/Gene Length	Coverage	Position in reference	Contig	Position in contig	Phenotype	Accession no.
+aph(6)-Id	91.64	837/837	92.35	1..838	NA	NA..NA	Aminoglycoside resistance Alternate name; aph(6)-Id	M28829
+aph(6)-Id	100.00	831/831	100.0	1..832	NA	NA..NA	Aminoglycoside resistance Alternate name; aph(6)-Id	CP000971
+aac(3)-IId	91.87	792/861	91.99	70..862	NA	NA..NA	Aminoglycoside resistance	EU022314
+aadA5	100.00	789/789	100.0	1..790	NA	NA..NA	Aminoglycoside resistance	AF137361
+aph(3'')-Ib	100.00	804/804	100.0	1..805	NA	NA..NA	Aminoglycoside resistance Alternate name; aph(3'')-Ib	AF321551
+aac(3)-IIa	99.77	861/861	100.0	1..862	NA	NA..NA	Aminoglycoside resistance	L22613
+blaCTX-M-112	84.93	889/876	88.01	1..890	NA	NA..NA	Beta-lactam resistance	JF274246
+blaTEM-1B	100.00	861/861	100.0	1..862	NA	NA..NA	Beta-lactam resistance Alternate name; RblaTEM-1	AY458016
+blaTEM-127	91.75	798/861	92.68	47..845	NA	NA..NA	Beta-lactam resistance	AY368236
+blaTEM-148	81.07	705/861	81.88	116..821	NA	NA..NA	Beta-lactam resistance	AM087454
+blaTEM-186	87.80	758/861	88.04	1..759	NA	NA..NA	Beta-lactam resistance	JN227084
+blaCTX-M-65	100.00	876/876	100.0	1..877	NA	NA..NA	Beta-lactam resistance	EF418608
+mph(A)	100.00	906/906	100.0	1..907	NA	NA..NA	Macrolide resistance	D16251
+mph(A)	99.78	922/921	100.11	1..923	NA	NA..NA	Macrolide resistance	U36578
+sul1	100.00	840/840	100.0	1..841	NA	NA..NA	Sulphonamide resistance	U12338
+sul1	86.27	749/867	86.39	1..750	NA	NA..NA	Sulphonamide resistance	EU780013
+sul2	99.75	816/816	100.0	1..817	NA	NA..NA	Sulphonamide resistance	AF542061
+sul2	87.75	716/816	87.75	101..817	NA	NA..NA	Sulphonamide resistance	AY034138
+sul2	100.00	890/852	104.46	1..891	NA	NA..NA	Sulphonamide resistance	FJ197818
+tet(A)	92.75	1200/1200	93.25	1..1201	NA	NA..NA	Tetracycline resistance	AJ517790
+tet(A)	98.43	1275/1275	99.14	1..1276	NA	NA..NA	Tetracycline resistance	AF534183
+dfrA17	100.00	474/474	100.0	1..475	NA	NA..NA	Trimethoprim resistance	FJ460238

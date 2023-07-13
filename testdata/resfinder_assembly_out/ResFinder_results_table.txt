@@ -1,0 +1,65 @@
+Aminoglycoside
+Resistance gene	Identity	Alignment Length/Gene Length	Coverage	Position in reference	Contig	Position in contig	Phenotype	Accession no.
+aadA1	100.00	792/792	100.0	1..792	NRLAR-22-ESBL-22-0863-1-FH20_25 NRLAR-22-ESBL-22-0863-1-FH20 #25	827..1618	Aminoglycoside resistance	JX185132
+aph(6)-Id	100.00	837/837	100.0	1..837	NRLAR-22-ESBL-22-0863-1-FH20_63 NRLAR-22-ESBL-22-0863-1-FH20 #63	420..1256	Aminoglycoside resistance Alternate name; aph(6)-Id	M28829
+aph(3'')-Ib	100.00	804/804	100.0	1..804	NRLAR-22-ESBL-22-0863-1-FH20_63 NRLAR-22-ESBL-22-0863-1-FH20 #63	1256..2059	Aminoglycoside resistance Alternate name; aph(3'')-Ib	AF321551
+aadA17	99.64	563/792	71.08585858585859	230..792	NRLAR-22-ESBL-22-0863-1-FH20_78 NRLAR-22-ESBL-22-0863-1-FH20 #78	1169..1731	Aminoglycoside resistance	FJ460181
+
+Beta-lactam
+Resistance gene	Identity	Alignment Length/Gene Length	Coverage	Position in reference	Contig	Position in contig	Phenotype	Accession no.
+blaTEM-52B	100.00	861/861	100.0	1..861	NRLAR-22-ESBL-22-0863-1-FH20_39 NRLAR-22-ESBL-22-0863-1-FH20 #39	36895..37755	Beta-lactam resistance	AF027199
+
+Colistin
+No hit found
+
+Fosfomycin
+No hit found
+
+Fusidic Acid
+No hit found
+
+MLS - Macrolide, Lincosamide and Streptogramin B
+Resistance gene	Identity	Alignment Length/Gene Length	Coverage	Position in reference	Contig	Position in contig	Phenotype	Accession no.
+mph(B)	100.00	909/909	100.0	1..909	NRLAR-22-ESBL-22-0863-1-FH20_25 NRLAR-22-ESBL-22-0863-1-FH20 #25	10694..11602	Macrolide resistance	D85892
+lnu(F)	100.00	822/822	100.0	1..822	NRLAR-22-ESBL-22-0863-1-FH20_78 NRLAR-22-ESBL-22-0863-1-FH20 #78	216..1037	Lincosamide resistance	EU118119
+
+Misc
+No hit found
+
+Nitroimidazole
+No hit found
+
+Oxazolidinone
+No hit found
+
+Phenicol
+Resistance gene	Identity	Alignment Length/Gene Length	Coverage	Position in reference	Contig	Position in contig	Phenotype	Accession no.
+catA1	99.85	660/660	100.0	1..660	NRLAR-22-ESBL-22-0863-1-FH20_65 NRLAR-22-ESBL-22-0863-1-FH20 #65	3438..4097	Phenicol resistance	V00622
+
+Fluoroquinolone
+No hit found
+
+Rifampicin
+No hit found
+
+Sulphonamide
+Resistance gene	Identity	Alignment Length/Gene Length	Coverage	Position in reference	Contig	Position in contig	Phenotype	Accession no.
+sul1	100.00	840/840	100.0	1..840	NRLAR-22-ESBL-22-0863-1-FH20_25 NRLAR-22-ESBL-22-0863-1-FH20 #25	2123..2962	Sulphonamide resistance	U12338
+sul2	100.00	816/816	100.0	1..816	NRLAR-22-ESBL-22-0863-1-FH20_63 NRLAR-22-ESBL-22-0863-1-FH20 #63	2120..2935	Sulphonamide resistance	HQ840942
+
+Tetracycline
+Resistance gene	Identity	Alignment Length/Gene Length	Coverage	Position in reference	Contig	Position in contig	Phenotype	Accession no.
+tet(A)	99.92	1200/1200	100.0	1..1200	NRLAR-22-ESBL-22-0863-1-FH20_25 NRLAR-22-ESBL-22-0863-1-FH20 #25	22244..23443	Tetracycline resistance	AJ517790
+
+Trimethoprim
+Resistance gene	Identity	Alignment Length/Gene Length	Coverage	Position in reference	Contig	Position in contig	Phenotype	Accession no.
+dfrA1	99.79	474/474	100.0	1..474	NRLAR-22-ESBL-22-0863-1-FH20_25 NRLAR-22-ESBL-22-0863-1-FH20 #25	261..734	Trimethoprim resistance	AF203818
+dfrA1	99.79	474/474	100.0	1..474	NRLAR-22-ESBL-22-0863-1-FH20_25 NRLAR-22-ESBL-22-0863-1-FH20 #25	261..734	Trimethoprim resistance	AJ238350
+dfrA1	99.79	474/474	100.0	1..474	NRLAR-22-ESBL-22-0863-1-FH20_25 NRLAR-22-ESBL-22-0863-1-FH20 #25	261..734	Trimethoprim resistance	X00926
+
+Glycopeptide
+No hit found
+
+Pseudomonic Acid
+No hit found
+

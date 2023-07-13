@@ -1,0 +1,152 @@
+# ResFinder phenotype results.
+# Sample: NRLAR-22-ESBL-22-0863-1-FH20.fasta
+# 
+# The phenotype 'No resistance' should be interpreted with
+# caution, as it only means that nothing in the used
+# database indicate resistance, but resistance could exist
+# from 'unknown' or not yet implemented sources.
+# 
+# The 'Match' column stores one of the integers 0, 1, 2, 3.
+#      0: No match found
+#      1: Match < 100% ID AND match length < ref length
+#      2: Match = 100% ID AND match length < ref length
+#      3: Match = 100% ID AND match length = ref length
+# If several hits causing the same resistance are found,
+# the highest number will be stored in the 'Match' column.
+
+# Antimicrobial	Class	WGS-predicted phenotype	Match	Genetic background
+gentamicin	aminoglycoside	No resistance	0	
+tobramycin	aminoglycoside	No resistance	0	
+streptomycin	aminoglycoside	Resistant	3	aadA1 (aadA1_JX185132), aph(6)-Id (aph(6)-Id_M28829), aph(3'')-Ib (aph(3'')-Ib_AF321551), aadA17 (aadA17_FJ460181)
+amikacin	aminoglycoside	No resistance	0	
+isepamicin	aminoglycoside	No resistance	0	
+dibekacin	aminoglycoside	No resistance	0	
+kanamycin	aminoglycoside	No resistance	0	
+neomycin	aminoglycoside	No resistance	0	
+lividomycin	aminoglycoside	No resistance	0	
+paromomycin	aminoglycoside	No resistance	0	
+ribostamycin	aminoglycoside	No resistance	0	
+unknown aminoglycoside	aminoglycoside	No resistance	0	
+butiromycin	aminoglycoside	No resistance	0	
+butirosin	aminoglycoside	No resistance	0	
+hygromycin	aminoglycoside	No resistance	0	
+netilmicin	aminoglycoside	No resistance	0	
+apramycin	aminoglycoside	No resistance	0	
+sisomicin	aminoglycoside	No resistance	0	
+arbekacin	aminoglycoside	No resistance	0	
+kasugamycin	aminoglycoside	No resistance	0	
+astromicin	aminoglycoside	No resistance	0	
+fortimicin	aminoglycoside	No resistance	0	
+g418	aminoglycoside	No resistance	0	
+gentamicin c	aminoglycoside	No resistance	0	
+kanamycin a	aminoglycoside	No resistance	0	
+spectinomycin	aminocyclitol	Resistant	3	aadA1 (aadA1_JX185132), aadA17 (aadA17_FJ460181)
+fluoroquinolone	quinolone	No resistance	0	
+ciprofloxacin	quinolone	Resistant	3	gyrA (p.S83L)
+unknown quinolone	quinolone	No resistance	0	
+nalidixic acid	quinolone	Resistant	3	gyrA (p.S83L), gyrA (p.D87Y)
+amoxicillin	beta-lactam	Resistant	3	blaTEM-52B (blaTEM-52B_AF027199)
+amoxicillin+clavulanic acid	beta-lactam	No resistance	0	
+ampicillin	beta-lactam	Resistant	3	blaTEM-52B (blaTEM-52B_AF027199)
+ampicillin+clavulanic acid	beta-lactam	No resistance	0	
+cefepime	beta-lactam	Resistant	3	blaTEM-52B (blaTEM-52B_AF027199)
+cefixime	beta-lactam	No resistance	0	
+cefotaxime	beta-lactam	Resistant	3	blaTEM-52B (blaTEM-52B_AF027199)
+cefoxitin	beta-lactam	No resistance	0	
+ceftazidime	beta-lactam	Resistant	3	blaTEM-52B (blaTEM-52B_AF027199)
+ertapenem	beta-lactam	No resistance	0	
+imipenem	beta-lactam	No resistance	0	
+meropenem	beta-lactam	No resistance	0	
+piperacillin	beta-lactam	Resistant	3	blaTEM-52B (blaTEM-52B_AF027199)
+piperacillin+tazobactam	beta-lactam	No resistance	0	
+unknown beta-lactam	beta-lactam	No resistance	0	
+aztreonam	beta-lactam	Resistant	3	blaTEM-52B (blaTEM-52B_AF027199)
+cefotaxime+clavulanic acid	beta-lactam	No resistance	0	
+temocillin	beta-lactam	No resistance	0	
+ticarcillin	beta-lactam	Resistant	3	blaTEM-52B (blaTEM-52B_AF027199)
+ceftazidime+avibactam	beta-lactam	No resistance	0	
+penicillin	beta-lactam	No resistance	0	
+ceftriaxone	beta-lactam	Resistant	3	blaTEM-52B (blaTEM-52B_AF027199)
+ticarcillin+clavulanic acid	beta-lactam	No resistance	0	
+cephalothin	beta-lactam	No resistance	0	
+cephalotin	beta-lactam	No resistance	0	
+piperacillin+clavulanic acid	beta-lactam	No resistance	0	
+ceftiofur	under_development	No resistance	0	
+sulfamethoxazole	folate pathway antagonist	Resistant	3	sul1 (sul1_U12338), sul2 (sul2_HQ840942)
+trimethoprim	folate pathway antagonist	Resistant	2	dfrA1 (dfrA1_AF203818), dfrA1 (dfrA1_AJ238350), dfrA1 (dfrA1_X00926)
+fosfomycin	fosfomycin	No resistance	0	
+vancomycin	glycopeptide	No resistance	0	
+teicoplanin	glycopeptide	No resistance	0	
+bleomycin	glycopeptide	No resistance	0	
+lincomycin	lincosamide	Resistant	3	lnu(F) (lnu(F)_EU118119)
+clindamycin	lincosamide	No resistance	0	
+dalfopristin	streptogramin a	No resistance	0	
+pristinamycin iia	streptogramin a	No resistance	0	
+virginiamycin m	streptogramin a	No resistance	0	
+quinupristin+dalfopristin	streptogramin a	No resistance	0	
+tiamulin	pleuromutilin	No resistance	0	
+carbomycin	macrolide	No resistance	0	
+erythromycin	macrolide	Resistant	3	mph(B) (mph(B)_D85892)
+azithromycin	macrolide	No resistance	0	
+oleandomycin	macrolide	No resistance	0	
+spiramycin	macrolide	Resistant	3	mph(B) (mph(B)_D85892)
+tylosin	macrolide	No resistance	0	
+telithromycin	macrolide	Resistant	3	mph(B) (mph(B)_D85892)
+tetracycline	tetracycline	Resistant	2	tet(A) (tet(A)_AJ517790)
+doxycycline	tetracycline	Resistant	2	tet(A) (tet(A)_AJ517790)
+minocycline	tetracycline	No resistance	0	
+tigecycline	tetracycline	No resistance	0	
+quinupristin	streptogramin b	No resistance	0	
+pristinamycin ia	streptogramin b	No resistance	0	
+virginiamycin s	streptogramin b	No resistance	0	
+linezolid	oxazolidinone	No resistance	0	
+chloramphenicol	amphenicol	Resistant	2	catA1 (catA1_V00622)
+florfenicol	amphenicol	No resistance	0	
+colistin	polymyxin	No resistance	0	
+fusidic acid	steroid antibacterial	No resistance	0	
+mupirocin	pseudomonic acid	No resistance	0	
+rifampicin	rifamycin	No resistance	0	
+metronidazole	nitroimidazole	No resistance	0	
+narasin	ionophores	No resistance	0	
+salinomycin	ionophores	No resistance	0	
+maduramicin	ionophores	No resistance	0	
+
+# WARNING: Missing features from phenotype database:
+# Feature_ID	Region	Database	Hit
+parC_62_k	parC		
+23S_547_c	23S;;23S;;kdoe;;23S;;nkva;;23S;;opgi		
+23S_1211_t	23S;;23S;;kdoe;;23S;;nkva;;23S;;opgi		
+23S_1723_a	23S;;23S;;kdoe;;23S;;nkva;;23S;;opgi		
+23S_1725_c	23S;;23S;;kdoe;;23S;;nkva;;23S;;opgi		
+23S_1726_g	23S;;23S;;kdoe;;23S;;nkva;;23S;;opgi		
+23S_1727_a	23S;;23S;;kdoe;;23S;;nkva;;23S;;opgi		
+23S_1730_t	23S;;23S;;kdoe;;23S;;nkva;;23S;;opgi		
+23S_1733_t	23S;;23S;;kdoe;;23S;;nkva;;23S;;opgi		
+23S_1734_c	23S;;23S;;kdoe;;23S;;nkva;;23S;;opgi		
+23S_1735_g	23S;;23S;;kdoe;;23S;;nkva;;23S;;opgi		
+23S_1865_c	23S;;23S;;kdoe;;23S;;nkva;;23S;;opgi		
+23S_2794_t	23S;;23S;;kdoe;;23S;;nkva;;23S;;opgi		
+23S_2796_c	23S;;23S;;kdoe;;23S;;nkva;;23S;;opgi		
+23S_2799_g	23S;;23S;;kdoe;;23S;;nkva;;23S;;opgi		
+23S_2802_a	23S;;23S;;kdoe;;23S;;nkva;;23S;;opgi		
+23S_2909_t	23S;;23S;;kdoe;;23S;;nkva;;23S;;opgi		
+23S_2911_c	23S;;23S;;kdoe;;23S;;nkva;;23S;;opgi		
+23S_2914_g	23S;;23S;;kdoe;;23S;;nkva;;23S;;opgi		
+23S_2917_a	23S;;23S;;kdoe;;23S;;nkva;;23S;;opgi		
+16S_rrsB_80_c	16S_rrsB;;16S_rrsB;;dvxb;;16S_rrsB;;llwt;;16S_rrsB;;fcjf		
+16S_rrsB_89_g	16S_rrsB;;16S_rrsB;;dvxb;;16S_rrsB;;llwt;;16S_rrsB;;fcjf		
+16S_rrsB_93_c	16S_rrsB;;16S_rrsB;;dvxb;;16S_rrsB;;llwt;;16S_rrsB;;fcjf		
+16S_rrsC_79_g	16S_rrsC;;16S_rrsC;;epbw;;16S_rrsC;;uepp;;16S_rrsC;;rbkb		
+16S_rrsC_90_c	16S_rrsC;;16S_rrsC;;epbw;;16S_rrsC;;uepp;;16S_rrsC;;rbkb		
+16S_rrsC_226_g	16S_rrsC;;16S_rrsC;;epbw;;16S_rrsC;;uepp;;16S_rrsC;;rbkb		
+16S_rrsH_80_c	16S_rrsH;;16S_rrsH;;motc;;16S_rrsH;;vhay;;16S_rrsH;;zyom		
+16S_rrsH_89_g	16S_rrsH;;16S_rrsH;;motc;;16S_rrsH;;vhay;;16S_rrsH;;zyom		
+16S_rrsH_93_c	16S_rrsH;;16S_rrsH;;motc;;16S_rrsH;;vhay;;16S_rrsH;;zyom		
+16S_rrsH_1002_g	16S_rrsH;;16S_rrsH;;motc;;16S_rrsH;;vhay;;16S_rrsH;;zyom		
+16S_rrsH_1006_g	16S_rrsH;;16S_rrsH;;motc;;16S_rrsH;;vhay;;16S_rrsH;;zyom		
+16S_rrsH_1010_t	16S_rrsH;;16S_rrsH;;motc;;16S_rrsH;;vhay;;16S_rrsH;;zyom		
+16S_rrsH_1019_a	16S_rrsH;;16S_rrsH;;motc;;16S_rrsH;;vhay;;16S_rrsH;;zyom		
+16S_rrsH_1021_a	16S_rrsH;;16S_rrsH;;motc;;16S_rrsH;;vhay;;16S_rrsH;;zyom		
+16S_rrsH_1023_g	16S_rrsH;;16S_rrsH;;motc;;16S_rrsH;;vhay;;16S_rrsH;;zyom		
+16S_rrsH_1038_c	16S_rrsH;;16S_rrsH;;motc;;16S_rrsH;;vhay;;16S_rrsH;;zyom		
+16S_rrsH_1120_c	16S_rrsH;;16S_rrsH;;motc;;16S_rrsH;;vhay;;16S_rrsH;;zyom		

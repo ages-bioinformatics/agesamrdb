@@ -1,0 +1,51 @@
+Chromosomal point mutations - Results
+Species: escherichia_coli
+Genes: gyrA, gyrB, parC, parE, pmrA, pmrB, folP, 23S, 16S_rrsB, 16S_rrsC, 16S_rrsH, ampC_promoter_size_53bp, rpoB
+Mapping methode: blast
+
+
+Known Mutations
+
+excluded
+
+gyrA
+Mutation	Nucleotide change	Amino acid change	Resistance	PMID
+gyrA p.S83L	TCG -> TTG	S -> L	Nalidixic acid,Ciprofloxacin	8891148
+gyrA p.D87Y	GAC -> TAC	D -> Y	Nalidixic acid,Nalidixic acid,Ciprofloxacin	12654733
+
+gyrB
+No mutations found in gyrB
+
+parC
+Mutation	Nucleotide change	Amino acid change	Resistance	PMID
+parC p.S80R	AGC -> AGA	S -> R	Nalidixic acid,Ciprofloxacin	8851598
+
+parE
+No mutations found in parE
+
+pmrA
+No mutations found in pmrA
+
+pmrB
+No mutations found in pmrB
+
+folP
+No mutations found in folP
+
+23S
+No known mutations found in 23S
+
+16S_rrsB
+No known mutations found in 16S_rrsB
+
+16S_rrsC
+No known mutations found in 16S_rrsC
+
+16S_rrsH
+No known mutations found in 16S_rrsH
+
+ampC
+No mutations found in ampC
+
+rpoB
+No mutations found in rpoB

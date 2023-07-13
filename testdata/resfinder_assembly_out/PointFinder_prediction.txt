@@ -1,0 +1,2 @@
+nalidixic acid	ciprofloxacin	unknown	colistin	sulfamethoxazole	rifampicin	erythromycin	telithromycin	linezolid	azithromycin	streptomycin	tetracycline	doxycycline	minocycline	tigecycline	spectinomycin	g418	gentamicin c	kanamycin a	tobramycin	neomycin	paromomycin	kasugamycin	ampicillin	ampicillin+clavulanic acid	amoxicillin	amoxicillin+clavulanic acid	cefixime	cefotaxime	cefoxitin	ceftazidime	piperacillin
+1	1	1	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0

@@ -1,0 +1,64 @@
+# ResFinder phenotype results for escherichia coli.
+# Sample: seq-Ec-NRLAR-22-ESBL-22-0913-MP24-FH21_S13_L001_R1_001.fastq.gz
+# 
+# The phenotype 'No resistance' should be interpreted with
+# caution, as it only means that nothing in the used
+# database indicate resistance, but resistance could exist
+# from 'unknown' or not yet implemented sources.
+# 
+# The 'Match' column stores one of the integers 0, 1, 2, 3.
+#      0: No match found
+#      1: Match < 100% ID AND match length < ref length
+#      2: Match = 100% ID AND match length < ref length
+#      3: Match = 100% ID AND match length = ref length
+# If several hits causing the same resistance are found,
+# the highest number will be stored in the 'Match' column.
+
+# Antimicrobial	Class	WGS-predicted phenotype	Match	Genetic background
+azithromycin	macrolide	Resistant	3	mph(A) (mph(A)_D16251), mph(A) (mph(A)_U36578)
+ertapenem	beta-lactam	No resistance	0	
+ampicillin+clavulanic acid	beta-lactam	No resistance	0	
+fosfomycin	fosfomycin	No resistance	0	
+tobramycin	aminoglycoside	Resistant	2	aac(3)-IId (aac(3)-IId_EU022314), aac(3)-IIa (aac(3)-IIa_L22613)
+sulfamethoxazole	folate pathway antagonist	Resistant	3	sul1 (sul1_U12338), sul1 (sul1_EU780013), sul2 (sul2_AF542061), sul2 (sul2_AY034138), sul2 (sul2_FJ197818)
+tigecycline	tetracycline	No resistance	0	
+tetracycline	tetracycline	Resistant	2	tet(A) (tet(A)_AJ517790), tet(A) (tet(A)_AF534183)
+piperacillin+tazobactam	beta-lactam	No resistance	0	
+gentamicin	aminoglycoside	Resistant	2	aac(3)-IId (aac(3)-IId_EU022314), aac(3)-IIa (aac(3)-IIa_L22613)
+amikacin	aminoglycoside	No resistance	0	
+cefoxitin	beta-lactam	No resistance	0	
+trimethoprim	folate pathway antagonist	Resistant	3	dfrA17 (dfrA17_FJ460238)
+ciprofloxacin	quinolone	Resistant	3	gyrA (p.S83L)
+chloramphenicol	amphenicol	No resistance	0	
+imipenem	beta-lactam	No resistance	0	
+colistin	polymyxin	No resistance	0	
+ceftazidime	beta-lactam	Resistant	3	blaCTX-M-112 (blaCTX-M-112_JF274246), blaCTX-M-65 (blaCTX-M-65_EF418608)
+meropenem	beta-lactam	No resistance	0	
+cefepime	beta-lactam	Resistant	3	blaCTX-M-112 (blaCTX-M-112_JF274246), blaCTX-M-65 (blaCTX-M-65_EF418608)
+cefotaxime	beta-lactam	Resistant	3	blaCTX-M-112 (blaCTX-M-112_JF274246), blaCTX-M-65 (blaCTX-M-65_EF418608)
+nalidixic acid	quinolone	Resistant	3	gyrA (p.S83L)
+ampicillin	beta-lactam	Resistant	3	blaCTX-M-112 (blaCTX-M-112_JF274246), blaTEM-1B (blaTEM-1B_AY458016), blaTEM-127 (blaTEM-127_AY368236), blaTEM-186 (blaTEM-186_JN227084), blaCTX-M-65 (blaCTX-M-65_EF418608)
+temocillin	beta-lactam	No resistance	0	
+
+# WARNING: Missing features from phenotype database:
+# Feature_ID	Region	Database	Hit
+16S_rrsB_76_a	16S_rrsB		
+16S_rrsB_80_c	16S_rrsB		
+16S_rrsB_89_g	16S_rrsB		
+16S_rrsH_985_c	16S_rrsH		
+23S_137_a	23S		
+23S_142_t	23S		
+23S_264_g	23S		
+23S_1506_c	23S		
+23S_1507_t	23S		
+23S_1723_a	23S		
+23S_2794_t	23S		
+23S_2796_c	23S		
+23S_2799_g	23S		
+23S_2802_a	23S		
+ampC-promoter_-1_t	ampC-promoter		
+ampC-promoter_-18_a	ampC-promoter		
+gyrA_872_s	gyrA		
+parC_62_k	parC		
+pmrB_283_g	pmrB		
+pmrB_358_n	pmrB		
