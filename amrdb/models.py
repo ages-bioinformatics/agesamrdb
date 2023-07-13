@@ -84,6 +84,7 @@ class Sample(Base):
     # Relationships
     stored_contigs: Mapped[List["Contig"]] = relationship(back_populates="sample_associated")
     resfinderresults: Mapped[List[ResfinderResult]] = relationship(back_populates="sample_associated")
+    pointfinderresults: Mapped[List["PointfinderResult"]] = relationship(back_populates="sample_associated")
 
 
 class Contig(Base):
@@ -100,3 +101,18 @@ class Contig(Base):
     sample_associated: Mapped["Sample"] = relationship(back_populates="stored_contigs")
     resfinderresults: Mapped[List[ResfinderResult]] = relationship(back_populates="contig_associated")
 
+
+class PointfinderResult(Base):
+    __tablename__ = "pointfinder_result"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    mutation: Mapped[str] = mapped_column(String(50), nullable=False)
+    nuc_change: Mapped[str] = mapped_column(String(50), nullable=False)
+    phenotype: Mapped[str] = mapped_column(String(50), nullable=False)
+    input_type: Mapped[str] = mapped_column(String(10), nullable=False)
+
+    # Foreign keys
+    sample_id: Mapped[int] = mapped_column(ForeignKey("sample.id"), nullable=False)
+
+    # Relationships
+    sample_associated: Mapped["Sample"] = relationship(back_populates="pointfinderresults")

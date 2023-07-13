@@ -10,7 +10,7 @@ import pandas as pd
 
 from Bio import SeqIO
 
-from amrdb.models import Base, ResfinderSequence, Phenotype, ResfinderResult, Sample, Contig
+from amrdb.models import Base, ResfinderSequence, Phenotype, ResfinderResult, Sample, Contig, PointfinderResult
 from amrdb.util import calc_sequence_hash, gene_quality_control
 
 from sqlalchemy import create_engine, inspect, select
@@ -28,6 +28,19 @@ parser.add_argument('--sample_name', dest='sample_name', help="optional sample n
 parser.add_argument('--mode', dest='mode', help="mode wether fastq or fasta input", required=False, default="fasta")
 parser.add_argument('--assembly', dest='assembly', help="allows contig visualization", required=False)
 
+
+def read_pointfinder_results(resfinder_dir):
+    """
+    parses pointfinder result and return df
+    """
+    df = pd.read_csv(f"{resfinder_dir}/PointFinder_results.txt", sep="\t")
+    df["phenotype"] = df["Resistance"].str.split(",")
+    df = df.explode("phenotype")
+    df["phenotype"] = df["phenotype"].apply(lambda k: k.strip().title())
+    df = df.drop_duplicates(["Mutation","phenotype"])
+    df.rename(columns={"Mutation":"mutation","Nucleotide change":"nuc_change"}, inplace=True)
+    df = df[["phenotype","mutation","nuc_change"]]
+    return df
 
 
 def read_resfinder_results(resfinder_dir, extract_coordinates=True):
@@ -143,11 +156,10 @@ def add_contig_info(df, assembly_file):
 def get_or_create(session, model, **kwargs):
     """
     generic function similar to what's known from django ORM
-    may throw an exeption when kwargs would match more than one sample
-    if only get_or_create used to create objects, this will never happen
+    creates new completely black item if all kwargs are None (assumed that this is allowed)
     """
-    instance = session.query(model).filter_by(**kwargs).one_or_none()
-    if instance:
+    instance = session.query(model).filter_by(**kwargs).first()
+    if not all(v is None for v in kwargs.values()) and instance is not None:  
         return instance
     else:
         instance = model(**kwargs)
@@ -156,7 +168,7 @@ def get_or_create(session, model, **kwargs):
         return instance
 
 
-def insert_resfinder_results(df, session):
+def insert_resfinder_results(df, associated_sample, session):
     """
     write results to database:
     creates sample and contigs on the fly or retrieves existing
@@ -166,7 +178,6 @@ def insert_resfinder_results(df, session):
     df = df.replace([np.nan], [None])
     added_results = []
     for i, row in df.iterrows():
-        associated_sample = get_or_create(session, Sample, name=row["sample_name"], external_id=row["external_id"])
         if row.get("contig_name"):
             associated_contig = get_or_create(session, Contig, length=row["contig_len"], name=row["contig_name"], sample_associated=associated_sample)
         else:
@@ -190,6 +201,15 @@ def insert_resfinder_results(df, session):
     session.commit() 
 
 
+def insert_pointfinder_result(df, associated_sample, session):
+    """
+    Add Pointfinderresults to database, linked to associated_sample
+    """
+    for i, row in df.iterrows():
+        session.add(PointfinderResult(**row, sample_associated=associated_sample))
+    session.commit()
+
+
 def main():
 
     args = parser.parse_args()
@@ -202,9 +222,6 @@ def main():
         extract_coordinates = True
 
     results_df = read_resfinder_results(args.resfinder_dir, extract_coordinates)
-    
-    results_df["external_id"] = args.external_id
-    results_df["sample_name"] = args.sample_name
     
     if args.assembly:
         results_df = add_contig_info(results_df, args.assembly)
@@ -229,8 +246,15 @@ def main():
         # incomplete gap-containing constructs from reads or
         # spamming of multiple similar variants caused by sequencing errors
         add_new_sequences(results_df, session)
+    
+    associated_sample = get_or_create(session, Sample, name=args.sample_name, external_id=args.external_id)
 
-    insert_resfinder_results(results_df, session)
+    insert_resfinder_results(results_df, associated_sample, session)
+
+    if os.path.exists(f"{args.resfinder_dir}/PointFinder_results.txt"):
+        pointfinder_df = read_pointfinder_results(args.resfinder_dir)
+        pointfinder_df["input_type"] = args.mode
+        insert_pointfinder_result(pointfinder_df, associated_sample, session)
 
     session.commit()
     session.close()

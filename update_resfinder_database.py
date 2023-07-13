@@ -11,7 +11,7 @@ import pandas as pd
 from Bio import SeqIO
 
 from amrdb.models import Base, ResfinderSequence, Phenotype, ResfinderResult, phenotype_association_table, \
-    Sample, Contig
+    Sample, Contig, PointfinderResult
 from amrdb.util import calc_sequence_hash
 
 from sqlalchemy import create_engine, insert, text, inspect 
@@ -141,6 +141,7 @@ def main():
         Sample.__table__.create(engine)
         Contig.__table__.create(engine)
         ResfinderResult.__table__.create(engine)
+        PointfinderResult.__table__.create(engine)
 
     # always drop phenotype table/association table and create newly
     if insp.has_table(phenotype_association_table.name):
