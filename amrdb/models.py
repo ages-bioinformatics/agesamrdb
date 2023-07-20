@@ -13,6 +13,7 @@ Base = declarative_base(cls=DeferredReflection)
 phenotype_association_table = Table(
         "sequencephenotype",
         Base.metadata,
+        Column("id", Integer(), primary_key=True, autoincrement=True),
         Column("sequence_id", ForeignKey("resfinder_sequence.id"), nullable=False),
         Column("phenotype_id", ForeignKey("phenotype.id"), nullable=False),
 )

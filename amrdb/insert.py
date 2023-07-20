@@ -80,6 +80,8 @@ def add_new_sequences(df, session):
     criteria: no qc issues, identity > 95 < 100, coverage > 95 != 100
     sequence is added with closest related accession and adopts
     these phenotypes (both can be replaced during updates)
+    accession is added because in update scenarios, the phenotype should
+    be kept also for our added sequences (phenotype association made over acn)
     """
     not_identical = (df["identity"] < 100) | (df["coverage"] != float(100))
     no_issues = (df["qc_issues"].isna()) # qc-criteria: no frameshift, start & stopcodon present
@@ -112,10 +114,9 @@ def insert_into_pointfinder_results(df, associated_sample, session):
 
 def insert_generic_contig_results(df, associated_sample, session, model, to_db_columns, contig_name_col="seqID"):
     """
-    write results to database:
-    creates sample and contigs on the fly or retrieves existing
-    sequence link is established via accession -> multiples are handled by crc32_hash (of sequence itself)
-    if sample feature is not used, only a single sample with no name is ever created
+    write results to database, generic function
+    takes a model class as parameter and to_db_columns. model needs to have an associated_contig
+    contigs are not created, entries refering to non-existing contigs will be dropped
     """
     df = df.replace([np.nan], [None])
     added_results = []

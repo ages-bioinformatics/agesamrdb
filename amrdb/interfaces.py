@@ -4,6 +4,9 @@ from .io import read_isescan_results, read_bakta_results, read_resfinder_results
 from .insert import insert_generic_contig_results, insert_into_resfinder_results, insert_into_pointfinder_results, \
         add_new_sequences, add_contig_info
 
+
+# column names that are actually imported in database as constants
+# used for generic "insert_generic_contig_results" function [currently bakta, isescan]
 BAKTA_DB_COLUMNS=["product_type","ref_pos_start","ref_pos_end","orientation","gene_name",
         "product","db_xref"]
 ISESCAN_DB_COLUMNS = ["family","cluster","is_start_pos","is_end_pos","is_copy_number",
@@ -35,6 +38,12 @@ def read_result(inputpath: str, method: str, **kwargs) -> pd.DataFrame:
 def insert_into_db(df: pd.DataFrame, method: str, associated_sample: Sample, session: object, **kwargs) -> None:
     """
     interface function to import data of generic pandas.DataFrame format to database
+    params:
+    df: pandas DataFrame that contains all required columns
+    method: must be string from set "isescan","bakta","resfinder","pointfinder"
+    associated_sample: sqlalchemy instance of class Sample
+    session: sqlalchemy session object
+    assembly_path: for resfinder to parse assembly and create contig entries
     """
     if method == "isescan":
         return insert_generic_contig_results(df, associated_sample, session, to_db_columns=ISESCAN_DB_COLUMNS, model=ISEScanResult)

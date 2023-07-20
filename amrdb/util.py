@@ -27,7 +27,8 @@ def gene_quality_control(seqrecord):
 def get_or_create(session, model, **kwargs):
     """
     generic function similar to what's known from django ORM
-    creates new completely black item if all kwargs are None (assumed that this is allowed)
+    creates new completely black item if all kwargs are None (assumed that this is allowed
+    in database and as cli-args)
     """
     instance = session.query(model).filter_by(**kwargs).first()
     if not all(v is None for v in kwargs.values()) and instance is not None:
