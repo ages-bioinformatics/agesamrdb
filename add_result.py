@@ -30,48 +30,6 @@ parser.add_argument('--assembly', dest='assembly', help="imports contig to allow
 parser.add_argument('--mode', dest='mode', help='define which input type was used (fasta/fastq) [fasta]', default='fasta')
 
 
-def insert_resfinder_results(df, associated_sample, session):
-    """
-    write results to database:
-    creates sample and contigs on the fly or retrieves existing
-    sequence link is established via accession -> multiples are handled by crc32_hash (of sequence itself)
-    if sample feature is not used, only a single sample with no name is ever created
-    """
-    df = df.replace([np.nan], [None])
-    added_results = []
-    for i, row in df.iterrows():
-        if row.get("contig_name"):
-            associated_contig = get_or_create(session, Contig, length=row["contig_len"], name=row["contig_name"], sample_associated=associated_sample)
-        else:
-            associated_contig = None
-            row["orientation"] = None
-        sequence = session.query(ResfinderSequence).filter_by(accession=row["accession"])
-        if sequence.count() > 1:
-            exact_matches = sequence.filter_by(crc32_hash=row["crc32_hash"])
-            if exact_matches.count() != 1:
-                # no perfect match -> use first with accession (original entry)
-                sequence = sequence.first()
-            else:
-                sequence = exact_matches.first()
-        else:
-            sequence = sequence.first()
-        if not sequence:
-            raise NoResultFound(f"ERROR: missing accession in database: {row['accession']}") # update database?
-        row = row[["identity","coverage","ref_pos_start","ref_pos_end","qc_issues","orientation"]]
-        added_results.append(ResfinderResult(stored_sequence=sequence, contig_associated=associated_contig, sample_associated=associated_sample, **row))
-    session.add_all(added_results)
-    session.commit() 
-
-
-def insert_pointfinder_result(df, associated_sample, session):
-    """
-    Add Pointfinderresults to database, linked to associated_sample
-    """
-    for i, row in df.iterrows():
-        session.add(PointfinderResult(**row, sample_associated=associated_sample))
-    session.commit()
-
-
 def main():
 
     args = parser.parse_args()
