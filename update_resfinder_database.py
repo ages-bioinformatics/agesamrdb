@@ -46,7 +46,7 @@ def read_phenotypes(resfinder_db_dir):
     df = pd.read_csv(f"{resfinder_db_dir}/phenotypes.txt", sep="\t")
     df["Phenotype"] = df["Phenotype"].str.split(", ")
     df = df.explode("Phenotype")
-    df.rename(columns={"Gene_accession no.":"sequence_identifier"}, inplace=True)
+    df[["short_name","subseq_numbering","sequence_identifier"]] = df["Gene_accession no."].str.extract("([^_]*)[-_]([^_]*)_([A-Z]+_[A-Z0-9.]*|[A-Z0-9.]*):*.*$", expand=True)
     phenotypes = df.drop_duplicates(["Phenotype","Class"])[["Phenotype","Class"]]
     phenotypes = phenotypes[~phenotypes["Class"].str.contains(",")].reset_index().drop("index",axis=1)
     phenotypes = phenotypes.merge(df[["Phenotype","sequence_identifier"]], on="Phenotype")
