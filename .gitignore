@@ -1,0 +1,5 @@
+pointfinder_db
+resfinder_db
+__pycache__
+*.db
+*.sh
