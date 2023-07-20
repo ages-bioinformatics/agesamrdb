@@ -11,7 +11,7 @@ import pandas as pd
 from Bio import SeqIO
 
 from amrdb.models import Base, ResfinderSequence, Phenotype, ResfinderResult, Sample, Contig, PointfinderResult
-from amrdb.util import calc_sequence_hash, gene_quality_control
+from amrdb.util import calc_sequence_hash, gene_quality_control, get_or_create
 
 from sqlalchemy import create_engine, inspect, select
 from sqlalchemy.orm import Session
@@ -151,21 +151,6 @@ def add_contig_info(df, assembly_file):
 
     df["orientation"] = ori
     return df
-
-
-def get_or_create(session, model, **kwargs):
-    """
-    generic function similar to what's known from django ORM
-    creates new completely black item if all kwargs are None (assumed that this is allowed)
-    """
-    instance = session.query(model).filter_by(**kwargs).first()
-    if not all(v is None for v in kwargs.values()) and instance is not None:  
-        return instance
-    else:
-        instance = model(**kwargs)
-        session.add(instance)
-        session.commit()
-        return instance
 
 
 def insert_resfinder_results(df, associated_sample, session):

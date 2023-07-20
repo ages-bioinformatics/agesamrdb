@@ -11,7 +11,7 @@ import pandas as pd
 from Bio import SeqIO
 
 from amrdb.models import Base, ResfinderSequence, Phenotype, ResfinderResult, phenotype_association_table, \
-    Sample, Contig, PointfinderResult
+    Sample, Contig, PointfinderResult, ISEScanResult, BaktaResult
 from amrdb.util import calc_sequence_hash
 
 from sqlalchemy import create_engine, insert, text, inspect 
@@ -19,10 +19,10 @@ from sqlalchemy.orm import Session, declarative_base
 from sqlalchemy.ext.automap import automap_base
 
 parser = argparse.ArgumentParser(description="Create and/or update Resistance-Gene-Database for ResFinder")
-parser.add_argument('-d','--database',dest='database', help="mysql database name", required=True)
-parser.add_argument('-H','--hostname',dest='hostname', help="mysql hostname", required=True)
-parser.add_argument('-u','--user',dest='dbuser', help="mysql database username", required=True)
-parser.add_argument('-p','--password',dest='mariadbpassword', help="mysql password", required=True)
+parser.add_argument('-d','--database',dest='database', help="mysql database name or path to sqlite-db [./agres.db]", default="./agres.db")
+parser.add_argument('-H','--hostname',dest='hostname', help="mysql hostname if not provided sqlite-db will be created", required=False)
+parser.add_argument('-u','--user',dest='dbuser', help="mysql database username", required=False)
+parser.add_argument('-p','--password',dest='mariadbpassword', help="mysql password", required=False)
 parser.add_argument('--resfinder_db', dest='resfinder_db_dir', help="path to resfinder github checkout", required=False, default="resfinder_db")
 
 
@@ -74,7 +74,7 @@ def identify_columns(records):
     return df
 
 
-def update_existing(df_new, session):
+def update_existing_sequences(df_new, session):
     """
     Updates all sequence-names, numbering and accession in database:
     not sequence, crc32_hash or internal identifier unless newly added
@@ -127,21 +127,26 @@ def main():
     phenotypes_df = read_phenotypes(args.resfinder_db_dir)
 
     # establish connection to database
-    engine = create_engine("mysql+mysqlconnector://%s:%s@%s:3306/%s" %
-                          (args.dbuser, args.mariadbpassword, args.hostname, args.database))
-    #engine = create_engine("sqlite:////proj-sonst/patric12/amr_wf/resfinder.db", echo=True)
+    if args.hostname:
+        engine = create_engine("mysql+mysqlconnector://%s:%s@%s:3306/%s" %
+                        (args.dbuser, args.mariadbpassword, args.hostname, args.database))
+    else:
+        engine = create_engine("sqlite:///%s" % args.database)
+
     session = Session(engine)
 
     # get all tables from database
     insp = inspect(engine)
     if not insp.has_table(ResfinderSequence.__table__.name):
         # create tables if not existing yet, only first initialization
-        ResfinderSequence.__table__.create(engine) 
         # assume others also not existing (i.e when run for first time)
+        ResfinderSequence.__table__.create(engine) 
         Sample.__table__.create(engine)
         Contig.__table__.create(engine)
         ResfinderResult.__table__.create(engine)
         PointfinderResult.__table__.create(engine)
+        ISEScanResult.__table__.create(engine)
+        BaktaResult.__table__.create(engine)
 
     # always drop phenotype table/association table and create newly
     if insp.has_table(phenotype_association_table.name):
@@ -156,7 +161,7 @@ def main():
     Base.prepare(engine)
 
     # write database entries:
-    update_existing(sequences_df, session)
+    update_existing_sequences(sequences_df, session)
     write_phenotypes(phenotypes_df, session)
 
     session.commit()

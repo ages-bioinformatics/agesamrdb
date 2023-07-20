@@ -2,7 +2,7 @@
 
 from typing import List
 
-from sqlalchemy import Table, Column, Integer, String, ForeignKey, Float
+from sqlalchemy import Table, Column, Integer, String, ForeignKey, Float, Boolean
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.orm import declarative_base
 
@@ -100,6 +100,8 @@ class Contig(Base):
     # Relationships
     sample_associated: Mapped["Sample"] = relationship(back_populates="stored_contigs")
     resfinderresults: Mapped[List[ResfinderResult]] = relationship(back_populates="contig_associated")
+    isescanresults: Mapped[List["ISEScanResult"]] = relationship(back_populates="contig_associated")
+    baktaresults: Mapped[List["BaktaResult"]] = relationship(back_populates="contig_associated")
 
 
 class PointfinderResult(Base):
@@ -116,3 +118,61 @@ class PointfinderResult(Base):
 
     # Relationships
     sample_associated: Mapped["Sample"] = relationship(back_populates="pointfinderresults")
+
+
+class ISEScanResult(Base):
+    __tablename__ = "isescan_result"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    family: Mapped[str] = mapped_column(String(50), nullable=False)
+    cluster: Mapped[str] = mapped_column(String(50), nullable=False)
+    is_start_pos: Mapped[int] = mapped_column(Integer(), nullable=False)
+    is_end_pos: Mapped[int] = mapped_column(Integer(), nullable=False)
+    is_copy_number: Mapped[int] = mapped_column(Integer(), nullable=False)
+    # inverted repeats coordinates
+    ir_start_pos1: Mapped[int] = mapped_column(Integer(), nullable=True)
+    ir_end_pos1: Mapped[int] = mapped_column(Integer(), nullable=False)
+    ir_start_pos2: Mapped[int] = mapped_column(Integer(), nullable=True)
+    ir_end_pos2: Mapped[int] = mapped_column(Integer(), nullable=True)
+    # inverted repeats scoring
+    score: Mapped[int] = mapped_column(Integer(), nullable=True)
+    irId: Mapped[int] = mapped_column(Integer(), nullable=True)
+    irLen: Mapped[int] = mapped_column(Integer(), nullable=True)
+    nGaps: Mapped[int] = mapped_column(Integer(), nullable=True)
+    # transposase orf
+    orf_start_pos: Mapped[int] = mapped_column(Integer(), nullable=True)
+    orf_end_pos: Mapped[int] = mapped_column(Integer(), nullable=True)
+    orientation: Mapped[str] = mapped_column(String(1), nullable=True)
+    e_value: Mapped[float] = mapped_column(Float(), nullable=True)
+    complete: Mapped[bool] = mapped_column(Boolean(), nullable=True) # "type" (c or p)
+    ov: Mapped[str] =  mapped_column(Integer(), nullable=True) # numeric value for counting
+    tir: Mapped[str] = mapped_column(String(100), nullable=True) #terminal inverted repeat
+
+
+    # Foreign keys:
+    contig_id: Mapped[int] = mapped_column(ForeignKey("contig.id"), nullable=True)
+
+    # Relationships:
+    contig_associated: Mapped["Contig"] = relationship(back_populates="isescanresults")
+
+
+class BaktaResult(Base):
+    __tablename__ = "bakta_result"
+
+    # Columns in Table (physically)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    ref_pos_start: Mapped[int] = mapped_column(Integer(), nullable=False)
+    ref_pos_end: Mapped[int] = mapped_column(Integer(), nullable=False)
+    orientation: Mapped[str] = mapped_column(String(1), nullable=False)
+    gene_name: Mapped[str] = mapped_column(String(20), nullable=True)
+    product_type: Mapped[str] = mapped_column(String(20), nullable=True)
+    product: Mapped[str] = mapped_column(String(1000), nullable=True)
+    db_xref: Mapped[str] = mapped_column(String(1000), nullable=True)
+
+    # Foreign Keys
+    contig_id: Mapped[int] = mapped_column(ForeignKey("contig.id"), nullable=True)
+
+    # Relationships
+    contig_associated: Mapped["Contig"] = relationship(back_populates="baktaresults")
+
+
