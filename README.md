@@ -30,6 +30,7 @@ Depending on the `--method` argument these are:
 | resfinder  | path/to/resfinder_output_dir |
 | bakta      | path/to/bakta_result.tsv     |
 | isescan    | path/to/isescan_result.tsv   |
+| mobtyper   | path/to/mobtyper_result.tsv  |
 
 For ResFinder, there is an option to import the fasta-file (`--assembly`). This will initialize and create contig elements in the database. It is required to make best use of the visualisation webUI with dna_features_viewer.  
 Also, ResFinder output could be created from fastq-input. In this case use the `--mode fastq` parameter. This way it is not possible to extract coordinates of the found genes and `--assembly` input will not work.
@@ -37,5 +38,6 @@ Also, ResFinder output could be created from fastq-input. In this case use the `
 ## Usage of 3rd party tools
 
 Bakta should be run using `--keep-contig-headers` flag.  
+mob_suite input should be generated using `mob_typer`.
 Other tools can be run with default/user prefered parameters.  
 A nextflow workflow integrating this database package can be found [here](to_be_added.html)  
