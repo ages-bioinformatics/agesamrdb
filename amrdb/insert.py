@@ -134,7 +134,6 @@ def insert_generic_contig_results(df, associated_sample, session, model,
     non-existing contigs will be dropped
     """
     df = df.replace([np.nan], [None])
-    added_results = []
     for contig_name, sub_df in df.groupby(contig_name_col):
         associated_contig = session.query(Contig).filter_by(
                 sample_associated=associated_sample, name=contig_name).first()
@@ -143,7 +142,6 @@ def insert_generic_contig_results(df, associated_sample, session, model,
 
         for i, row in sub_df.iterrows():
             row = row[to_db_columns]
-            added_results.append(model(contig_associated=associated_contig, **row))
+            session.add(model(contig_associated=associated_contig, **row))
 
-    session.add_all(added_results)
     session.commit()
