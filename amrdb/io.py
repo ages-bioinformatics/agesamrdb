@@ -69,8 +69,12 @@ def read_resfinder_results(resfinder_dir: str,
     df_results = pd.read_csv(f"{resfinder_dir}/ResFinder_results_tab.txt",
             sep="\t")
 
+    # handle case that no resistance gene was found
+    if not df_results.empty:
+        df_results[["ref_pos_end","ref_pos_start","qc_issues"]] = None
+        df = df_results
     # merge seq and tabluar resfinder output:
-    if extract_coordinates:
+    elif extract_coordinates:
         # on 3 pseudo unique positions and drop duplicates
         # duplicate case: multiple accessions (alleles) matching equally good at same pos in contig
         # drop duplicates on contig and position in contig
