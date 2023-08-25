@@ -14,8 +14,8 @@ phenotype_association_table = Table(
         "sequencephenotype",
         Base.metadata,
         Column("id", Integer(), primary_key=True, autoincrement=True),
-        Column("sequence_id", ForeignKey("resfinder_sequence.id"), nullable=False),
-        Column("phenotype_id", ForeignKey("phenotype.id"), nullable=False),
+        Column("sequence_id", ForeignKey("resfinder_sequence.id", ondelete="CASCADE"), nullable=False),
+        Column("phenotype_id", ForeignKey("phenotype.id", ondelete="CASCADE"), nullable=False),
 )
 
 class ResfinderSequence(Base):
@@ -60,9 +60,9 @@ class ResfinderResult(Base):
     orientation: Mapped[str] = mapped_column(String(1), nullable=True)
 
     # Foreign Keys
-    sample_id: Mapped[int] = mapped_column(ForeignKey("sample.id"), nullable=False)
-    sequence_id:  Mapped[int] = mapped_column(ForeignKey("resfinder_sequence.id"), nullable=False)
-    contig_id: Mapped[int] = mapped_column(ForeignKey("contig.id"), nullable=True)
+    sample_id: Mapped[int] = mapped_column(ForeignKey("sample.id", ondelete="CASCADE"), nullable=False)
+    sequence_id:  Mapped[int] = mapped_column(ForeignKey("resfinder_sequence.id", ondelete="CASCADE"), nullable=False)
+    contig_id: Mapped[int] = mapped_column(ForeignKey("contig.id", ondelete="CASCADE"), nullable=True)
 
     # Relationships
     sample_associated: Mapped["Sample"] = relationship(back_populates="resfinderresults")
@@ -96,13 +96,14 @@ class Contig(Base):
     length: Mapped[int] = mapped_column(Integer(), nullable=True)
 
     # Foreign keys
-    sample_id: Mapped[int] = mapped_column(ForeignKey("sample.id"), nullable=False)
+    sample_id: Mapped[int] = mapped_column(ForeignKey("sample.id", ondelete="CASCADE"), nullable=False)
     
     # Relationships
     sample_associated: Mapped["Sample"] = relationship(back_populates="stored_contigs")
     resfinderresults: Mapped[List[ResfinderResult]] = relationship(back_populates="contig_associated")
     isescanresults: Mapped[List["ISEScanResult"]] = relationship(back_populates="contig_associated")
     baktaresults: Mapped[List["BaktaResult"]] = relationship(back_populates="contig_associated")
+    mobtyperresults: Mapped["MobTyperResult"] = relationship(back_populates="contig_associated")
 
 
 class PointfinderResult(Base):
@@ -115,7 +116,7 @@ class PointfinderResult(Base):
     input_type: Mapped[str] = mapped_column(String(10), nullable=False)
 
     # Foreign keys
-    sample_id: Mapped[int] = mapped_column(ForeignKey("sample.id"), nullable=False)
+    sample_id: Mapped[int] = mapped_column(ForeignKey("sample.id", ondelete="CASCADE"), nullable=False)
 
     # Relationships
     sample_associated: Mapped["Sample"] = relationship(back_populates="pointfinderresults")
@@ -151,7 +152,7 @@ class ISEScanResult(Base):
 
 
     # Foreign keys:
-    contig_id: Mapped[int] = mapped_column(ForeignKey("contig.id"), nullable=True)
+    contig_id: Mapped[int] = mapped_column(ForeignKey("contig.id", ondelete="CASCADE"), nullable=True)
 
     # Relationships:
     contig_associated: Mapped["Contig"] = relationship(back_populates="isescanresults")
@@ -171,9 +172,47 @@ class BaktaResult(Base):
     db_xref: Mapped[str] = mapped_column(String(1000), nullable=True)
 
     # Foreign Keys
-    contig_id: Mapped[int] = mapped_column(ForeignKey("contig.id"), nullable=True)
+    contig_id: Mapped[int] = mapped_column(ForeignKey("contig.id", ondelete="CASCADE"), nullable=True)
 
     # Relationships
     contig_associated: Mapped["Contig"] = relationship(back_populates="baktaresults")
 
+
+class MobTyperResult(Base):
+    __tablename__ = "mobtyper_result"
+    # Columns in Table (physically)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    gc_content: Mapped[float] = mapped_column(Float(), nullable=True)
+    rep_type: Mapped[str] = mapped_column(String(100), nullable=True)
+    rep_type_accession: Mapped[str] = mapped_column(String(1000), nullable=True)
+
+    relaxase_type: Mapped[str] = mapped_column(String(100), nullable=True)
+    relaxase_type_accession: Mapped[str] = mapped_column(String(1000), nullable=True)
+
+    mpf_type: Mapped[str] = mapped_column(String(100), nullable=True)
+    mpf_type_accession:  Mapped[str] = mapped_column(String(1000), nullable=True)
+
+    orit_type: Mapped[str] = mapped_column(String(100), nullable=True)
+    orit_accession:  Mapped[str] = mapped_column(String(1000), nullable=True)
+
+    predicted_mobility: Mapped[str] = mapped_column(String(100), nullable=True)
+    mash_nearest_neighbor: Mapped[str] = mapped_column(String(100), nullable=True)
+    mash_neighbor_distance: Mapped[int] = mapped_column(Integer(), nullable=True)
+    mash_neighbor_identification: Mapped[str] = mapped_column(String(200), nullable=True)
+    primary_cluster_id: Mapped[str] = mapped_column(String(100), nullable=True)
+    secondary_cluster_id: Mapped[str] = mapped_column(String(100), nullable=True)
+
+    predicted_host_range_overall_rank: Mapped[str] = mapped_column(String(100), nullable=True)
+    predicted_host_range_overall_name: Mapped[str] = mapped_column(String(100), nullable=True)
+    observed_host_range_ncbi_rank: Mapped[str] = mapped_column(String(100), nullable=True)
+    observed_host_range_ncbi_name: Mapped[str] = mapped_column(String(100), nullable=True)
+    reported_host_range_lit_rank: Mapped[str] = mapped_column(String(100), nullable=True)
+    reported_host_range_lit_name: Mapped[str] = mapped_column(String(100), nullable=True)
+    associated_pmid: Mapped[str] = mapped_column(String(100), nullable=True)
+
+    # Foreign Keys
+    contig_id: Mapped[int] = mapped_column(ForeignKey("contig.id", ondelete="CASCADE"), nullable=True)
+
+    # Relationships
+    contig_associated: Mapped["Contig"] = relationship(back_populates="mobtyperresults")
 

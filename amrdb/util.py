@@ -8,7 +8,8 @@ def calc_sequence_hash(sequence: str):
 
 def gene_quality_control(seqrecord):
     """
-    some basic quality control about the sequence (start, stopcodon, frameshift)
+    some basic quality control about the sequence :start and stopcodon, 
+    checking wheter we see a frameshift
     """
     comment = []
     if not str(seqrecord.seq[-3:]).upper() in ["TAA","TAG","TGA"]:
@@ -27,8 +28,8 @@ def gene_quality_control(seqrecord):
 def get_or_create(session, model, **kwargs):
     """
     generic function similar to what's known from django ORM
-    creates new completely black item if all kwargs are None (assumed that this is allowed
-    in database and as cli-args)
+    creates new completely black item if all kwargs are None (assumed that this
+    behaviour is allowed in database and as cli-args)
     """
     instance = session.query(model).filter_by(**kwargs).first()
     if not all(v is None for v in kwargs.values()) and instance is not None:
