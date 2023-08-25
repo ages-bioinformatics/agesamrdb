@@ -70,7 +70,7 @@ def read_resfinder_results(resfinder_dir: str,
             sep="\t")
 
     # handle case that no resistance gene was found
-    if not df_results.empty:
+    if df_results.empty:
         df_results[["ref_pos_end","ref_pos_start","qc_issues"]] = None
         df = df_results
     # merge seq and tabluar resfinder output:
