@@ -70,8 +70,17 @@ def main():
 
     # interaction with data in database: fetch sample, read results to df and
     # write to database
-    associated_sample = get_or_create(session, Sample, name=args.sample_name, 
-            external_id=args.external_id)
+    sample_args = {}
+    if args.sample_name:
+        sample_args["name"] = args.sample_name
+    if args.external_id:
+        sample_args["external_id"] = args.external_id
+    if len(sample_args) == 0:
+        # create sample without sample name or external id
+        associated_sample = get_or_create(session, Sample,
+                name=args.sample_name, external_id=args.external_id)
+    else:
+        associated_sample = get_or_create(session, Sample, **sample_args)
     results_df = read_result(args.input_path, args.method, **read_kwargs)
     insert_into_db(results_df, args.method, associated_sample, session, 
             **insert_kwargs)
