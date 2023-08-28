@@ -45,6 +45,7 @@ class Phenotype(Base):
         )
         class_name: Mapped[str] = mapped_column(String(50), nullable=True)
         phenotype: Mapped[str] = mapped_column(String(50), nullable=False)
+        invitroresults: Mapped["InVitroResult"] = relationship(back_populates="phenotype_associated")
 
 
 class ResfinderResult(Base):
@@ -86,6 +87,7 @@ class Sample(Base):
     stored_contigs: Mapped[List["Contig"]] = relationship(back_populates="sample_associated")
     resfinderresults: Mapped[List[ResfinderResult]] = relationship(back_populates="sample_associated")
     pointfinderresults: Mapped[List["PointfinderResult"]] = relationship(back_populates="sample_associated")
+    invitroresults: Mapped["InVitroResult"] = relationship(back_populates="sample_associated")
 
 
 class Contig(Base):
@@ -216,3 +218,18 @@ class MobTyperResult(Base):
     # Relationships
     contig_associated: Mapped["Contig"] = relationship(back_populates="mobtyperresults")
 
+
+class InVitroResult(Base):
+    # result for minimal inhibition concentration
+    __tablename__ = "invitro_result"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    mic: Mapped[float] = mapped_column(Float(), nullable=True)
+    category: Mapped[str] = mapped_column(String(10), nullable=True)
+
+    # Foreign keys
+    sample_id: Mapped[int] = mapped_column(ForeignKey("sample.id", ondelete="CASCADE"), nullable=False)
+    phenotype_id: Mapped[int] = mapped_column(ForeignKey("phenotype.id", ondelete="CASCADE"), nullable=False)
+
+    # Relationships
+    sample_associated: Mapped["Sample"] = relationship(back_populates="invitroresults") 
+    phenotype_associated: Mapped["Phenotype"] = relationship(back_populates="invitroresults")

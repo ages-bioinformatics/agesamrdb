@@ -12,8 +12,8 @@ from Bio import SeqIO
 
 from amrdb.models import Base, ResfinderSequence, Phenotype, ResfinderResult, \
         phenotype_association_table, Sample, Contig, PointfinderResult, \
-        ISEScanResult, BaktaResult, MobTyperResult
-from amrdb.util import calc_sequence_hash
+        ISEScanResult, BaktaResult, MobTyperResult, InVitroResult
+from amrdb.util import calc_sequence_hash, get_or_create
 
 from sqlalchemy import create_engine, insert, text, inspect 
 from sqlalchemy.orm import Session, declarative_base
@@ -136,8 +136,11 @@ def write_phenotypes(phenotypes_df, session):
         linked_sequences = session.query(ResfinderSequence).filter(
                 ResfinderSequence.accession.in_(
                     sub_df["sequence_identifier"].to_list())).all()
-        session.add(Phenotype(phenotype=groupname[0], class_name=groupname[1],
-            sequences=linked_sequences))
+        phenotype = get_or_create(session, Phenotype, phenotype=groupname[0],
+                class_name=groupname[1])
+        for l in linked_sequences:
+            phenotype.sequences.append(l)
+        session.add(phenotype)
     session.commit()
 
 
@@ -173,13 +176,12 @@ def main():
         ISEScanResult.__table__.create(engine)
         BaktaResult.__table__.create(engine)
         MobTyperResult.__table__.create(engine)
+        Phenotype.__table__.create(engine)
+        InVitroResult.__table__.create(engine)
 
-    # always drop phenotype table/association table and create newly
+    # always drop phenotype association table and create newly
     if insp.has_table(phenotype_association_table.name):
         phenotype_association_table.drop(engine)
-    if insp.has_table(Phenotype.__table__.name):
-        Phenotype.__table__.drop(engine)
-    Phenotype.__table__.create(engine)
     phenotype_association_table.create(engine)
     session.commit()    
 
