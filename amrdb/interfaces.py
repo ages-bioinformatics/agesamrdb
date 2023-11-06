@@ -1,7 +1,7 @@
 import pandas as pd
-from .models import Sample, ISEScanResult, BaktaResult, MobTyperResult
+from .models import Sample, ISEScanResult, BaktaResult, MobTyperResult, PlasmidfinderResult
 from .io import read_isescan_results, read_bakta_results, read_resfinder_results, \
-        read_pointfinder_results, read_mobtyper_results
+        read_pointfinder_results, read_mobtyper_results, read_plasmidfinder_results
 from .insert import insert_generic_contig_results, insert_into_resfinder_results, \
         insert_into_pointfinder_results, add_new_sequences, add_contig_info
 
@@ -24,6 +24,9 @@ MOBTYPER_DB_COLUMNS = ["gc_content","rep_type","rep_type_accession",
         "predicted_host_range_overall_name","observed_host_range_ncbi_rank",
         "observed_host_range_ncbi_name","reported_host_range_lit_rank",
         "reported_host_range_lit_name","associated_pmid"]
+PLASMIDFINDER_DB_COLUMNS = ['database_name', 'plasmid', 'identity', 'note',
+        'accession_number', 'query_length', 'template_length', 'ref_pos_start',
+        'ref_pos_end']
 
 def read_result(inputpath: str, method: str, **kwargs) -> pd.DataFrame:
     """
@@ -45,6 +48,8 @@ def read_result(inputpath: str, method: str, **kwargs) -> pd.DataFrame:
         return read_pointfinder_results(inputpath)
     elif method == "mobtyper":
         return read_mobtyper_results(inputpath)
+    elif method == "plasmidfinder":
+        return read_plasmidfinder_results(inputpath)
     else:
         raise LookupError(f"Method not implemented: {method}")
 
@@ -75,6 +80,11 @@ def insert_into_db(df: pd.DataFrame, method: str, associated_sample: Sample,
         return insert_into_pointfinder_results(df, associated_sample, session)
     elif method == "mobtyper":
         return insert_generic_contig_results(df, associated_sample, session,
-                to_db_columns=MOBTYPER_DB_COLUMNS, model=MobTyperResult) 
+                to_db_columns=MOBTYPER_DB_COLUMNS, model=MobTyperResult)
+    elif method == "plasmidfinder":
+    
+        return insert_generic_contig_results(df, associated_sample, session,
+                to_db_columns=PLASMIDFINDER_DB_COLUMNS, model=PlasmidfinderResult, 
+                create_contig=True, contig_name_col='contig_name')
     else:
         raise LookupError (f"Method not implemented: {method}")

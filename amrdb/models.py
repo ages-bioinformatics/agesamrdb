@@ -106,7 +106,7 @@ class Contig(Base):
     isescanresults: Mapped[List["ISEScanResult"]] = relationship(back_populates="contig_associated")
     baktaresults: Mapped[List["BaktaResult"]] = relationship(back_populates="contig_associated")
     mobtyperresults: Mapped["MobTyperResult"] = relationship(back_populates="contig_associated")
-
+    plasmidfinderresults: Mapped[List["PlasmidfinderResult"]] = relationship(back_populates="contig_associated")
 
 class PointfinderResult(Base):
     __tablename__ = "pointfinder_result"
@@ -233,3 +233,25 @@ class InVitroResult(Base):
     # Relationships
     sample_associated: Mapped["Sample"] = relationship(back_populates="invitroresults") 
     phenotype_associated: Mapped["Phenotype"] = relationship(back_populates="invitroresults")
+
+
+class PlasmidfinderResult(Base):
+    __tablename__ = "plasmidfinder_result"
+    #plasmidfinder output columns are:
+    #Database, Plasmid, Identity, Query / Template length, Contig, Position in contig, Note, Accession number
+    id: Mapped[int] = mapped_column(primary_key=True)
+    database_name: Mapped[str] = mapped_column(String(100), nullable=True)
+    plasmid: Mapped[str] = mapped_column(String(100), nullable=True)
+    identity: Mapped[float] = mapped_column(Float(), nullable=False) 
+    query_length: Mapped[float] = mapped_column(Float(), nullable=False) 
+    template_length: Mapped[float] = mapped_column(Float(), nullable=False) 
+    ref_pos_start: Mapped[int] = mapped_column(Integer(), nullable=True)
+    ref_pos_end: Mapped[int] = mapped_column(Integer(), nullable=True)
+    note: Mapped[str] = mapped_column(String(1000), nullable=True)
+    accession_number: Mapped[str] = mapped_column(String(1000), nullable=True)
+
+    # Foreign Keys
+    contig_id: Mapped[int] = mapped_column(ForeignKey("contig.id", ondelete="CASCADE"), nullable=True)
+
+    # Relationships
+    contig_associated: Mapped["Contig"] = relationship(back_populates="plasmidfinderresults")

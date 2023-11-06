@@ -13,3 +13,4 @@ python amrdb_add_results.py --method resfinder -i "testdata/resfinder_reads_out"
 python amrdb_add_results.py --method isescan -i "testdata/isescan/NRLAR-22-ESBL-22-0863-1-FH20.fasta.tsv" --external_id 1
 python amrdb_add_results.py --method bakta -i "testdata/bakta/NRLAR-22-ESBL-22-0863-1-FH20.tsv" --external_id 1
 python amrdb_add_results.py --method mobtyper -i "testdata/mobtyper_results.txt" --external_id 1
+python amrdb_add_results.py --method plasmidfinder -i testdata/plasmidfinder_results.tsv

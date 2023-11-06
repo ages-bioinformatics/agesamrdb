@@ -118,3 +118,24 @@ def read_pointfinder_results(resfinder_dir: str) -> pd.DataFrame:
     df = df[["phenotype","mutation","nuc_change"]]
     return df
 
+def read_plasmidfinder_results(input_file: str) -> pd.DataFrame:
+    column_mapping = {'Database': 'database_name', 'Plasmid': 'plasmid', 'Identity': 'identity', 
+                        'Note': 'note', 'Accession number': 'accession_number', 'Contig': 'contig_name' }
+    
+    columns = ['database_name', 'plasmid', 'identity', 'contig_name', 'note', 'accession_number', 
+        'query_length', 'template_length', 'ref_pos_start', 'ref_pos_end']
+
+    
+    df = pd.read_csv(input_file, sep='\t')
+    df[['query_length', 'template_length']] = df['Query / Template length'].str.split(' / ', n=1, expand=True).astype(int)
+    df[['ref_pos_start', 'ref_pos_end']] = df['Position in contig'].str.split('\.\.', n=1, expand=True).astype(int)
+    df = df. rename(columns=column_mapping)
+    df = df[columns]
+    return df
+    
+    
+    
+    
+    
+    
+    

@@ -126,7 +126,7 @@ def insert_into_pointfinder_results(df, associated_sample, session):
 
 
 def insert_generic_contig_results(df, associated_sample, session, model,
-        to_db_columns, contig_name_col="seqID"):
+        to_db_columns, contig_name_col="seqID", create_contig=False):
     """
     write results to database, generic function,
     takes a model class as parameter and to_db_columns. model needs to have an
@@ -138,7 +138,11 @@ def insert_generic_contig_results(df, associated_sample, session, model,
         associated_contig = session.query(Contig).filter_by(
                 sample_associated=associated_sample, name=contig_name).first()
         if not associated_contig:
-            continue
+            if create_contig:
+                associated_contig = get_or_create(session, Contig, name=contig_name, 
+                    sample_associated=associated_sample)
+            else:
+                continue
 
         for i, row in sub_df.iterrows():
             row = row[to_db_columns]
