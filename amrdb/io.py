@@ -137,9 +137,12 @@ def read_plasmidfinder_results(input_file: str) -> pd.DataFrame:
         df = df[columns]
     return df
     
-    
-    
-    
+def read_phispy_results(input_file: str) -> pd.DataFrame:
+    columns = ['prophage_number', 'contig_name', 'start' ,'stop', 'start_attL', 'end_attL', 
+                'start_attR', 'end_attR', 'sequence_attL', 'sequence_attR', 'description']
+    df = pd.read_csv(input_file, index_col=False, header=None, names=columns, sep='\t')
+    print(df)
+    return df 
     
     
     

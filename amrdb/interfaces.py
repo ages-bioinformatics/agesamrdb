@@ -1,7 +1,9 @@
 import pandas as pd
-from .models import Sample, ISEScanResult, BaktaResult, MobTyperResult, PlasmidfinderResult
+from .models import Sample, ISEScanResult, BaktaResult, MobTyperResult, \
+        PlasmidfinderResult, PhispyResults
 from .io import read_isescan_results, read_bakta_results, read_resfinder_results, \
-        read_pointfinder_results, read_mobtyper_results, read_plasmidfinder_results
+        read_pointfinder_results, read_mobtyper_results, read_plasmidfinder_results, \
+        read_phispy_results
 from .insert import insert_generic_contig_results, insert_into_resfinder_results, \
         insert_into_pointfinder_results, add_new_sequences, add_contig_info
 
@@ -27,6 +29,9 @@ MOBTYPER_DB_COLUMNS = ["gc_content","rep_type","rep_type_accession",
 PLASMIDFINDER_DB_COLUMNS = ['database_name', 'plasmid', 'identity', 'note',
         'accession_number', 'query_length', 'template_length', 'ref_pos_start',
         'ref_pos_end']
+PHISPY_DB_COLUMNS = ['prophage_number', 'start' ,'stop', 'start_attL',
+        'end_attL', 'start_attR', 'end_attR', 'sequence_attL', 'sequence_attR', 
+        'description']        
 
 def read_result(inputpath: str, method: str, **kwargs) -> pd.DataFrame:
     """
@@ -50,6 +55,8 @@ def read_result(inputpath: str, method: str, **kwargs) -> pd.DataFrame:
         return read_mobtyper_results(inputpath)
     elif method == "plasmidfinder":
         return read_plasmidfinder_results(inputpath)
+    elif method == "phispy":
+        return read_phispy_results(inputpath)
     else:
         raise LookupError(f"Method not implemented: {method}")
 
@@ -82,9 +89,14 @@ def insert_into_db(df: pd.DataFrame, method: str, associated_sample: Sample,
         return insert_generic_contig_results(df, associated_sample, session,
                 to_db_columns=MOBTYPER_DB_COLUMNS, model=MobTyperResult)
     elif method == "plasmidfinder":
-    
         return insert_generic_contig_results(df, associated_sample, session,
                 to_db_columns=PLASMIDFINDER_DB_COLUMNS, model=PlasmidfinderResult, 
                 create_contig=True, contig_name_col='contig_name')
+    elif method == "phispy":
+        return insert_generic_contig_results(df, associated_sample, session,
+                to_db_columns=PHISPY_DB_COLUMNS, model=PhispyResults, 
+                create_contig=True, contig_name_col='contig_name')
     else:
         raise LookupError (f"Method not implemented: {method}")
+
+

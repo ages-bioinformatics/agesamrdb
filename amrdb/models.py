@@ -107,7 +107,8 @@ class Contig(Base):
     baktaresults: Mapped[List["BaktaResult"]] = relationship(back_populates="contig_associated")
     mobtyperresults: Mapped["MobTyperResult"] = relationship(back_populates="contig_associated")
     plasmidfinderresults: Mapped[List["PlasmidfinderResult"]] = relationship(back_populates="contig_associated")
-
+    phipsyresults:  Mapped[List["PhispyResults"]] = relationship(back_populates="contig_associated")
+    
 class PointfinderResult(Base):
     __tablename__ = "pointfinder_result"
 
@@ -150,7 +151,7 @@ class ISEScanResult(Base):
     e_value: Mapped[float] = mapped_column(Float(), nullable=True)
     complete: Mapped[bool] = mapped_column(Boolean(), nullable=True) # "type" (c or p)
     ov: Mapped[str] =  mapped_column(Integer(), nullable=True) # numeric value for counting
-    tir: Mapped[str] = mapped_column(String(100), nullable=True) #terminal inverted repeat
+    tir: Mapped[str] = mapped_column(String(500), nullable=True) #terminal inverted repeat
 
 
     # Foreign keys:
@@ -255,3 +256,35 @@ class PlasmidfinderResult(Base):
 
     # Relationships
     contig_associated: Mapped["Contig"] = relationship(back_populates="plasmidfinderresults")
+    
+    
+class PhispyResults(Base):
+    __tablename__ = "phispy_result"
+    #phispy output columns are:
+    # Prophage number; The contig upon which the prophage resides; The start location of the prophage; The stop location of the prophage If we can detect the att sites; 
+    #the additional columns are: 
+    # start of attL; end of attL; start of attR; end of attR; sequence of attL; sequence of attR; The explanation of why this att site was chosen for this prophage.
+    
+    id: Mapped[int] = mapped_column(primary_key=True)
+    prophage_number: Mapped[str] = mapped_column(String(20), nullable=True)
+    start: Mapped[int] = mapped_column(Integer(), nullable=True)
+    stop: Mapped[int] = mapped_column(Integer(), nullable=True)
+    start_attL: Mapped[int] = mapped_column(Integer(), nullable=True)
+    end_attL: Mapped[int] = mapped_column(Integer(), nullable=True)
+    start_attR: Mapped[int] = mapped_column(Integer(), nullable=True)
+    end_attR: Mapped[int] = mapped_column(Integer(), nullable=True)
+    sequence_attL: Mapped[str] = mapped_column(String(200), nullable=True)
+    sequence_attR: Mapped[str] = mapped_column(String(200), nullable=True)
+    description: Mapped[str] = mapped_column(String(200), nullable=True)
+        
+    
+    # Foreign Keys
+    contig_id: Mapped[int] = mapped_column(ForeignKey("contig.id", ondelete="CASCADE"), nullable=True)
+
+    # Relationships
+    contig_associated: Mapped["Contig"] = relationship(back_populates="phipsyresults")
+
+
+
+
+
