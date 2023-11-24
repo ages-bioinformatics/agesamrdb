@@ -3,7 +3,7 @@ from Bio import SeqIO
 
 from .util import get_or_create
 from .models import ResfinderSequence, Contig, ResfinderResult, \
-        PointfinderResult
+        PointfinderResult, SpeciesfinderResult
 from sqlalchemy.exc import NoResultFound
 
 
@@ -122,6 +122,14 @@ def insert_into_pointfinder_results(df, associated_sample, session):
     """
     for i, row in df.iterrows():
         session.add(PointfinderResult(**row, sample_associated=associated_sample))
+    session.commit()
+    
+def insert_into_speciesfinder_results(df, associated_sample, session):
+    """
+    Add Speciesfinderresults to database
+    """
+    for i, row in df.iterrows():
+        session.add(SpeciesfinderResult(**row, sample_associated=associated_sample))
     session.commit()
 
 

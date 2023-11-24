@@ -1,5 +1,6 @@
 from Bio import SeqIO
 import pandas as pd
+import json
 
 from .util import calc_sequence_hash, gene_quality_control
 
@@ -144,5 +145,26 @@ def read_phispy_results(input_file: str) -> pd.DataFrame:
     print(df)
     return df 
     
+
+def read_speciesfinder_results(input_file: str) -> pd.DataFrame:
+    """
+    parses CGE Speciesfinder result (json str) and return df
+    """
+    column_mapping = { 'Template':'template',
+                       'Species':'species',
+                       'Match':'match_id',
+                       'Database':'database_name',
+                       'Confidence of result':'confidence_of_result',
+                     }
+
+    with open(input_file) as json_file:
+        json_data = json.load(json_file)
+    #print(json_data['speciesfinder']['results'])
     
+    df = pd.DataFrame.from_records([json_data['speciesfinder']['results']])
+    df[['file_format', 'method']] = json_data['speciesfinder']['user_input']['file_format'], \
+                                    json_data['speciesfinder']['user_input']['method']
+    df = df.rename(columns=column_mapping)
+    print(df)
+    return df
     

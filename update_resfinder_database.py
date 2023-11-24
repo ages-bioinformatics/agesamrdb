@@ -13,7 +13,7 @@ from Bio import SeqIO
 from amrdb.models import Base, ResfinderSequence, Phenotype, ResfinderResult, \
         phenotype_association_table, Sample, Contig, PointfinderResult, \
         ISEScanResult, BaktaResult, MobTyperResult, InVitroResult, \
-        PlasmidfinderResult, PhispyResults
+        PlasmidfinderResult, PhispyResults, SpeciesfinderResult
 from amrdb.util import calc_sequence_hash, get_or_create
 
 from sqlalchemy import create_engine, insert, text, inspect 
@@ -181,7 +181,9 @@ def main():
         InVitroResult.__table__.create(engine)
         PlasmidfinderResult.__table__.create(engine)
         ISEScanResult.__table__.create(engine)
-    PhispyResults.__table__.create(engine)
+        PhispyResults.__table__.create(engine)
+    SpeciesfinderResult.__table__.create(engine)
+    
 
     # always drop phenotype association table and create newly
     if insp.has_table(phenotype_association_table.name):

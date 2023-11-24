@@ -3,9 +3,10 @@ from .models import Sample, ISEScanResult, BaktaResult, MobTyperResult, \
         PlasmidfinderResult, PhispyResults
 from .io import read_isescan_results, read_bakta_results, read_resfinder_results, \
         read_pointfinder_results, read_mobtyper_results, read_plasmidfinder_results, \
-        read_phispy_results
+        read_phispy_results, read_speciesfinder_results
 from .insert import insert_generic_contig_results, insert_into_resfinder_results, \
-        insert_into_pointfinder_results, add_new_sequences, add_contig_info
+        insert_into_pointfinder_results, add_new_sequences, add_contig_info, \
+        insert_into_speciesfinder_results
 
 
 # column names that are actually imported in database as constants
@@ -57,6 +58,8 @@ def read_result(inputpath: str, method: str, **kwargs) -> pd.DataFrame:
         return read_plasmidfinder_results(inputpath)
     elif method == "phispy":
         return read_phispy_results(inputpath)
+    elif method == "speciesfinder":
+        return read_speciesfinder_results(inputpath)
     else:
         raise LookupError(f"Method not implemented: {method}")
 
@@ -96,6 +99,8 @@ def insert_into_db(df: pd.DataFrame, method: str, associated_sample: Sample,
         return insert_generic_contig_results(df, associated_sample, session,
                 to_db_columns=PHISPY_DB_COLUMNS, model=PhispyResults, 
                 create_contig=True, contig_name_col='contig_name')
+    elif method == "speciesfinder":
+        return insert_into_speciesfinder_results(df, associated_sample, session)
     else:
         raise LookupError (f"Method not implemented: {method}")
 

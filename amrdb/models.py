@@ -88,7 +88,7 @@ class Sample(Base):
     resfinderresults: Mapped[List[ResfinderResult]] = relationship(back_populates="sample_associated")
     pointfinderresults: Mapped[List["PointfinderResult"]] = relationship(back_populates="sample_associated")
     invitroresults: Mapped["InVitroResult"] = relationship(back_populates="sample_associated")
-
+    speciesfinderresults: Mapped[List["SpeciesfinderResult"]] = relationship(back_populates="sample_associated")
 
 class Contig(Base):
     __tablename__ = "contig"
@@ -286,5 +286,20 @@ class PhispyResults(Base):
 
 
 
+class SpeciesfinderResult(Base):
+    __tablename__ = "speciesfinder_result"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    template: Mapped[str] = mapped_column(String(500), nullable=True)
+    species: Mapped[str] = mapped_column(String(200), nullable=True)
+    match_id: Mapped[str] = mapped_column(String(200), nullable=True)
+    database_name: Mapped[str] = mapped_column(String(200), nullable=True)
+    confidence_of_result: Mapped[str] = mapped_column(String(20), nullable=True)
+    file_format: Mapped[str] = mapped_column(String(20), nullable=True)
+    method: Mapped[str] = mapped_column(String(20), nullable=True)
+    
+    # Foreign Keys
+    sample_id: Mapped[int] = mapped_column(ForeignKey("sample.id", ondelete="CASCADE"), nullable=False)
 
+    # Relationships
+    sample_associated: Mapped["Sample"] = relationship(back_populates="speciesfinderresults")
 
