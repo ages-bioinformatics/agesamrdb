@@ -34,7 +34,6 @@ Depending on the `--method` argument these are:
 | plasmidfinder  | path/to/plasmidfinder_results.tsv  |
 | phispy     | path/to/prophage_coordinates.tsv  |
 | speciesfinder | path/to/data.txt          |
-|-------------------------------------------|
 
 For ResFinder, there is an option to import the fasta-file (`--assembly`). This will initialize and create contig elements in the database. It is required to make best use of the visualisation webUI with dna_features_viewer.  
 Also, ResFinder output could be created from fastq-input. In this case use the `--mode fastq` parameter. This way it is not possible to extract coordinates of the found genes and `--assembly` input will not work.
