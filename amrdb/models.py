@@ -10,42 +10,89 @@ from sqlalchemy.ext.declarative import DeferredReflection
 
 Base = declarative_base(cls=DeferredReflection)
 
+# helper table for many2many relationship gene <-> phenotype
 phenotype_association_table = Table(
         "sequencephenotype",
         Base.metadata,
         Column("id", Integer(), primary_key=True, autoincrement=True),
-        Column("sequence_id", ForeignKey("resfinder_sequence.id", ondelete="CASCADE"), nullable=False),
+        Column("sequence_id", ForeignKey("sequence.id", ondelete="CASCADE"), nullable=False),
+        Column("phenotype_id", ForeignKey("phenotype.id", ondelete="CASCADE"), nullable=False),
+)
+
+# helper table for many2many relationship point mutation <-> phenotype
+pointfinder_phenotype_association_table = Table(
+        "pointphenotype",
+        Base.metadata,
+        Column("id", Integer(), primary_key=True, autoincrement=True),
+        Column("pointfinder_result_id", ForeignKey("pointfinder_result.id", ondelete="CASCADE"), nullable=False),
         Column("phenotype_id", ForeignKey("phenotype.id", ondelete="CASCADE"), nullable=False),
 )
 
 class ResfinderSequence(Base):
-        __tablename__ = "resfinder_sequence"
+    __tablename__ = "resfinder_sequence"
 
-        id: Mapped[int] = mapped_column(primary_key=True)
-        phenotypes: Mapped[List["Phenotype"]] = relationship(
-            secondary=phenotype_association_table, back_populates="sequences",
-        )
-        results: Mapped[List["ResfinderResult"]] = relationship(back_populates="stored_sequence")
-        sequence: Mapped[str] = mapped_column(String(10000), nullable=False)
-        name: Mapped[str] = mapped_column(String(200), nullable=False)
-        short_name: Mapped[str] = mapped_column(String(50), nullable=True)
-        subseq_numbering: Mapped[str] = mapped_column(String(50), nullable=True)
-        accession: Mapped[str] = mapped_column(String(50), nullable=False)
-        main_numbering: Mapped[str] = mapped_column(String(50), nullable=True)
-        internal_numbering: Mapped[str] = mapped_column(String(50), nullable=True)
-        crc32_hash: Mapped[str] = mapped_column(String(10), nullable=False)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    short_name: Mapped[str] = mapped_column(String(50), nullable=True)
+    subseq_numbering: Mapped[str] = mapped_column(String(50), nullable=True)
+    accession: Mapped[str] = mapped_column(String(50), nullable=False)
+    main_numbering: Mapped[str] = mapped_column(String(50), nullable=True)
+    internal_numbering: Mapped[str] = mapped_column(String(50), nullable=True)
+
+    # Foreign keys
+    sequence_id: Mapped[int] = mapped_column(ForeignKey("sequence.id", ondelete="CASCADE"), nullable=False)
+
+    # Relationships
+    stored_sequence: Mapped["Sequence"] = relationship(back_populates="resfindersequence")
+    results: Mapped[List["ResfinderResult"]] = relationship(back_populates="stored_sequence")
+
+
+class AmrfinderSequence(Base):
+    __tablename__ = "amrfinder_sequence"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    short_name: Mapped[str] = mapped_column(String(50), nullable=True)
+    accession: Mapped[str] = mapped_column(String(50), nullable=False)
+    activity_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    is_core: Mapped[bool] = mapped_column(Boolean(), nullable=False)
+    long_name: Mapped[str] = mapped_column(String(1000), nullable=False)
+    
+    # Foreign keys
+    sequence_id: Mapped[int] = mapped_column(ForeignKey("sequence.id", ondelete="CASCADE"), nullable=False)
+    
+    # Relationships
+    stored_sequence: Mapped["Sequence"] = relationship(back_populates="amrfindersequence")
+    results: Mapped[List["AmrfinderResult"]] = relationship(back_populates="stored_sequence")
+    
+
+class Sequence(Base):
+    __tablename__ = "sequence"
+
+    id: Mapped[int]  = mapped_column(primary_key=True)
+    crc32_hash: Mapped[str] = mapped_column(String(10), nullable=False)
+    sequence: Mapped[str] = mapped_column(String(10000), nullable=False)
+
+    # Relationships
+    resfindersequence: Mapped["ResfinderSequence"] = relationship(back_populates="stored_sequence")
+    amrfindersequence: Mapped["AmrfinderSequence"] = relationship(back_populates="stored_sequence")
+    phenotypes: Mapped[List["Phenotype"]] = relationship(
+        secondary=phenotype_association_table, back_populates="sequences",
+    )
 
 
 class Phenotype(Base):
-        __tablename__ = "phenotype"
+    __tablename__ = "phenotype"
 
-        id: Mapped[int] = mapped_column(primary_key=True)
-        sequences: Mapped[List[ResfinderSequence]] = relationship(
-            secondary=phenotype_association_table, back_populates="phenotypes",
-        )
-        class_name: Mapped[str] = mapped_column(String(50), nullable=True)
-        phenotype: Mapped[str] = mapped_column(String(50), nullable=False)
-        invitroresults: Mapped["InVitroResult"] = relationship(back_populates="phenotype_associated")
+    id: Mapped[int] = mapped_column(primary_key=True)
+    sequences: Mapped[List["Sequence"]] = relationship(
+        secondary=phenotype_association_table, back_populates="phenotypes",
+    )
+    pointmutations: Mapped[List["PointfinderResult"]] = relationship(
+        secondary=pointfinder_phenotype_association_table,  back_populates="phenotypes",
+    )
+    class_name: Mapped[str] = mapped_column(String(50), nullable=True)
+    phenotype: Mapped[str] = mapped_column(String(50), nullable=False)
+    invitroresults: Mapped["InVitroResult"] = relationship(back_populates="phenotype_associated")
 
 
 class ResfinderResult(Base):
@@ -64,11 +111,13 @@ class ResfinderResult(Base):
     sample_id: Mapped[int] = mapped_column(ForeignKey("sample.id", ondelete="CASCADE"), nullable=False)
     sequence_id:  Mapped[int] = mapped_column(ForeignKey("resfinder_sequence.id", ondelete="CASCADE"), nullable=False)
     contig_id: Mapped[int] = mapped_column(ForeignKey("contig.id", ondelete="CASCADE"), nullable=True)
+    version_id: Mapped[int] = mapped_column(ForeignKey("tool_version.id", ondelete="CASCADE"), nullable=False)
 
     # Relationships
     sample_associated: Mapped["Sample"] = relationship(back_populates="resfinderresults")
     stored_sequence: Mapped[ResfinderSequence] = relationship(back_populates="results")
     contig_associated: Mapped["Contig"] = relationship(back_populates="resfinderresults")
+    version_associated: Mapped["ToolVersion"] = relationship()
 
 
 class Sample(Base):
@@ -90,6 +139,7 @@ class Sample(Base):
     invitroresults: Mapped["InVitroResult"] = relationship(back_populates="sample_associated")
     speciesfinderresults: Mapped[List["SpeciesfinderResult"]] = relationship(back_populates="sample_associated")
 
+
 class Contig(Base):
     __tablename__ = "contig"
 
@@ -108,22 +158,39 @@ class Contig(Base):
     mobtyperresults: Mapped["MobTyperResult"] = relationship(back_populates="contig_associated")
     plasmidfinderresults: Mapped[List["PlasmidfinderResult"]] = relationship(back_populates="contig_associated")
     phipsyresults:  Mapped[List["PhispyResults"]] = relationship(back_populates="contig_associated")
-    
+
+
 class PointfinderResult(Base):
     __tablename__ = "pointfinder_result"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     mutation: Mapped[str] = mapped_column(String(50), nullable=False)
     nuc_change: Mapped[str] = mapped_column(String(50), nullable=False)
-    phenotype: Mapped[str] = mapped_column(String(50), nullable=False)
+    #phenotype: Mapped[str] = mapped_column(String(50), nullable=False)
     input_type: Mapped[str] = mapped_column(String(10), nullable=False)
 
     # Foreign keys
     sample_id: Mapped[int] = mapped_column(ForeignKey("sample.id", ondelete="CASCADE"), nullable=False)
+    version_id: Mapped[int] = mapped_column(ForeignKey("tool_version.id", ondelete="CASCADE"), nullable=False)
 
     # Relationships
     sample_associated: Mapped["Sample"] = relationship(back_populates="pointfinderresults")
+    version_associated: Mapped["ToolVersion"] = relationship()
+    phenotypes: Mapped[List["Phenotype"]] = relationship(
+        secondary=pointfinder_phenotype_association_table, back_populates="pointmutations",
+    )
 
+class AmrfinderResult(Base):
+    __tablename__ = "amrfinder_result"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    # TODO fill
+
+    # Foreign keys:
+    sequence_id:  Mapped[int] = mapped_column(ForeignKey("amrfinder_sequence.id", ondelete="CASCADE"), nullable=False)
+
+    # Relationships:
+    stored_sequence: Mapped["AmrfinderSequence"] = relationship(back_populates="results")
 
 class ISEScanResult(Base):
     __tablename__ = "isescan_result"
@@ -156,9 +223,11 @@ class ISEScanResult(Base):
 
     # Foreign keys:
     contig_id: Mapped[int] = mapped_column(ForeignKey("contig.id", ondelete="CASCADE"), nullable=True)
+    version_id: Mapped[int] = mapped_column(ForeignKey("tool_version.id", ondelete="CASCADE"), nullable=False)
 
     # Relationships:
     contig_associated: Mapped["Contig"] = relationship(back_populates="isescanresults")
+    version_associated: Mapped["ToolVersion"] = relationship()
 
 
 class BaktaResult(Base):
@@ -176,9 +245,11 @@ class BaktaResult(Base):
 
     # Foreign Keys
     contig_id: Mapped[int] = mapped_column(ForeignKey("contig.id", ondelete="CASCADE"), nullable=True)
+    version_id: Mapped[int] = mapped_column(ForeignKey("tool_version.id", ondelete="CASCADE"), nullable=False)
 
     # Relationships
     contig_associated: Mapped["Contig"] = relationship(back_populates="baktaresults")
+    version_associated: Mapped["ToolVersion"] = relationship()
 
 
 class MobTyperResult(Base):
@@ -215,9 +286,11 @@ class MobTyperResult(Base):
 
     # Foreign Keys
     contig_id: Mapped[int] = mapped_column(ForeignKey("contig.id", ondelete="CASCADE"), nullable=True)
+    version_id: Mapped[int] = mapped_column(ForeignKey("tool_version.id", ondelete="CASCADE"), nullable=False)
 
     # Relationships
     contig_associated: Mapped["Contig"] = relationship(back_populates="mobtyperresults")
+    version_associated: Mapped["ToolVersion"] = relationship()
 
 
 class InVitroResult(Base):
@@ -253,9 +326,11 @@ class PlasmidfinderResult(Base):
 
     # Foreign Keys
     contig_id: Mapped[int] = mapped_column(ForeignKey("contig.id", ondelete="CASCADE"), nullable=True)
+    version_id: Mapped[int] = mapped_column(ForeignKey("tool_version.id", ondelete="CASCADE"), nullable=False)
 
     # Relationships
     contig_associated: Mapped["Contig"] = relationship(back_populates="plasmidfinderresults")
+    version_associated: Mapped["ToolVersion"] = relationship()
     
     
 class PhispyResults(Base):
@@ -280,10 +355,11 @@ class PhispyResults(Base):
     
     # Foreign Keys
     contig_id: Mapped[int] = mapped_column(ForeignKey("contig.id", ondelete="CASCADE"), nullable=True)
+    version_id: Mapped[int] = mapped_column(ForeignKey("tool_version.id", ondelete="CASCADE"), nullable=False)
 
     # Relationships
     contig_associated: Mapped["Contig"] = relationship(back_populates="phipsyresults")
-
+    version_associated: Mapped["ToolVersion"] = relationship()
 
 
 class SpeciesfinderResult(Base):
@@ -299,7 +375,22 @@ class SpeciesfinderResult(Base):
     
     # Foreign Keys
     sample_id: Mapped[int] = mapped_column(ForeignKey("sample.id", ondelete="CASCADE"), nullable=False)
+    version_id: Mapped[int] = mapped_column(ForeignKey("tool_version.id", ondelete="CASCADE"), nullable=False)
 
     # Relationships
     sample_associated: Mapped["Sample"] = relationship(back_populates="speciesfinderresults")
+    version_associated: Mapped["ToolVersion"] = relationship()
 
+
+class ToolVersion(Base):
+    # Table which contains information about the version of db and tool
+    __tablename__ = "tool_version"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    tool_name: Mapped[str] = mapped_column(String(100), nullable=True)
+    tool_version: Mapped[str] = mapped_column(String(100), nullable=True)
+    input_type: Mapped[str] = mapped_column(String(10), nullable=True)
+    db_version: Mapped[str] = mapped_column(String(100), nullable=True)
+
+    # Relationships:
+    # TODO write all associated back-populations, this does not seem to
+    # be neccessary at this point

@@ -159,12 +159,10 @@ def read_speciesfinder_results(input_file: str) -> pd.DataFrame:
 
     with open(input_file) as json_file:
         json_data = json.load(json_file)
-    #print(json_data['speciesfinder']['results'])
     
     df = pd.DataFrame.from_records([json_data['speciesfinder']['results']])
     df[['file_format', 'method']] = json_data['speciesfinder']['user_input']['file_format'], \
                                     json_data['speciesfinder']['user_input']['method']
     df = df.rename(columns=column_mapping)
-    print(df)
     return df
     

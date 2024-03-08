@@ -3,11 +3,12 @@ from Bio import SeqIO
 
 from .util import get_or_create
 from .models import ResfinderSequence, Contig, ResfinderResult, \
-        PointfinderResult, SpeciesfinderResult
+        PointfinderResult, SpeciesfinderResult, Phenotype, Sequence, \
+        AmrfinderSequence
 from sqlalchemy.exc import NoResultFound
 
 
-def insert_into_resfinder_results(df, associated_sample, session):
+def insert_into_resfinder_results(df, associated_sample, session, **kwargs):
     """
     write results to database:
     creates sample and contigs on the fly or retrieves existing
@@ -27,7 +28,8 @@ def insert_into_resfinder_results(df, associated_sample, session):
             row["orientation"] = None
         sequence = session.query(ResfinderSequence).filter_by(accession=row["accession"])
         if sequence.count() > 1:
-            exact_matches = sequence.filter_by(crc32_hash=row["crc32_hash"])
+            exact_matches = sequence.join(ResfinderSequence.stored_sequence)\
+                    .filter_by(crc32_hash=row["crc32_hash"])
             if exact_matches.count() != 1:
                 # no perfect match -> use first with accession (original entry)
                 sequence = sequence.first()
@@ -42,7 +44,7 @@ def insert_into_resfinder_results(df, associated_sample, session):
             "qc_issues","orientation"]]
         added_results.append(ResfinderResult(stored_sequence=sequence,
             contig_associated=associated_contig,
-            sample_associated=associated_sample, **row))
+            sample_associated=associated_sample, **row, **kwargs))
     session.add_all(added_results)
 
 
@@ -79,7 +81,7 @@ def add_contig_info(df, assembly_file):
     return df
 
 
-def add_new_sequences(df, session):
+def add_new_sequences(df, session, tool_model):
     """
     in case the sequence is very similar to known genes and was detected
     but is not 100% identical, we add the entire sequence to be able
@@ -90,6 +92,7 @@ def add_new_sequences(df, session):
     these phenotypes (both can be replaced during updates)
     accession is added because in update scenarios, the phenotype should
     be kept also for our added sequences (phenotype association made over acn)
+    tool_model: may be ResfinderSequence or AmrfinderSequence
     """
     not_identical = (df["identity"] < 100) | (df["coverage"] != float(100))
     # qc-criteria: no frameshift, start & stopcodon present
@@ -97,7 +100,7 @@ def add_new_sequences(df, session):
     above_threshold = (df["identity"] >= 95) & (df["coverage"] > 95)
 
     for i, row in df[not_identical & no_issues & above_threshold].iterrows():
-        entry = session.query(ResfinderSequence).filter_by(crc32_hash=row["crc32_hash"])
+        entry = session.query(Sequence).filter_by(crc32_hash=row["crc32_hash"])
         if entry.count() > 1: # deal with collisions
             entry = entry.filter_by(sequence=row["sequence"]).first()
         else:
@@ -105,36 +108,45 @@ def add_new_sequences(df, session):
         if not entry:
             #derive phenotypes from best hit accession - important: Display Warning in UI!
             phenotype_list = session.query(ResfinderSequence).filter_by(
-                    accession=row["accession"]).first().phenotypes
+                    accession=row["accession"]).first().stored_sequence.phenotypes
+            new_sequence = Sequence(crc32_hash=row["crc32_hash"], sequence=row["sequence"],
+                    phenotypes=phenotype_list)
+            session.add(new_sequence)
             session.add(ResfinderSequence(
                 name=(row["Resistance gene"] + "_AGES_"+row["crc32_hash"]),
-                sequence=row["sequence"], accession=row["accession"],
-                crc32_hash=row["crc32_hash"], internal_numbering="AGES_"+row["crc32_hash"],
-                phenotypes=phenotype_list))
+                stored_sequence=new_sequence, accession=row["accession"],
+                internal_numbering="AGES_"+row["crc32_hash"]))
 
     session.commit()
 
 
-def insert_into_pointfinder_results(df, associated_sample, session):
+def insert_into_pointfinder_results(df, associated_sample, session, **kwargs):
     """
     Add Pointfinderresults to database, linked to associated_sample only
     - there's no contig information for each mutation
     """
-    for i, row in df.iterrows():
-        session.add(PointfinderResult(**row, sample_associated=associated_sample))
+    for mutation, sub_df in df.groupby("mutation", as_index=False):
+        phenotypes = [get_or_create(session, Phenotype,
+            phenotype=p) for p in sub_df["phenotype"].values]
+        for i, row in sub_df.iterrows():
+            del row["phenotype"]
+            session.add(PointfinderResult(**row, sample_associated=associated_sample,
+                phenotypes=phenotypes, **kwargs))
     session.commit()
     
-def insert_into_speciesfinder_results(df, associated_sample, session):
+
+def insert_into_speciesfinder_results(df, associated_sample, session, **kwargs):
     """
     Add Speciesfinderresults to database
     """
     for i, row in df.iterrows():
-        session.add(SpeciesfinderResult(**row, sample_associated=associated_sample))
+        session.add(SpeciesfinderResult(**row, sample_associated=associated_sample,
+            **kwargs))
     session.commit()
 
 
 def insert_generic_contig_results(df, associated_sample, session, model,
-        to_db_columns, contig_name_col="seqID", create_contig=False):
+        to_db_columns, contig_name_col="seqID", create_contig=False, **kwargs):
     """
     write results to database, generic function,
     takes a model class as parameter and to_db_columns. model needs to have an
@@ -154,6 +166,6 @@ def insert_generic_contig_results(df, associated_sample, session, model,
 
         for i, row in sub_df.iterrows():
             row = row[to_db_columns]
-            session.add(model(contig_associated=associated_contig, **row))
+            session.add(model(contig_associated=associated_contig, **row, **kwargs))
 
     session.commit()

@@ -1,6 +1,6 @@
 import pandas as pd
 from .models import Sample, ISEScanResult, BaktaResult, MobTyperResult, \
-        PlasmidfinderResult, PhispyResults
+        PlasmidfinderResult, PhispyResults, ResfinderSequence
 from .io import read_isescan_results, read_bakta_results, read_resfinder_results, \
         read_pointfinder_results, read_mobtyper_results, read_plasmidfinder_results, \
         read_phispy_results, read_speciesfinder_results
@@ -42,7 +42,7 @@ def read_result(inputpath: str, method: str, **kwargs) -> pd.DataFrame:
     inputpath: string, path to tabular file or output directory of tool
     method: must be string from set: isescan,bakta,resfinder,pointfinder,
         mobtyper
-    kwargs: forwarded to read_resfinder_results
+    kwargs: forwarded to all insert (model create) statements
     """
     if method == "isescan":
         return read_isescan_results(inputpath)
@@ -65,7 +65,7 @@ def read_result(inputpath: str, method: str, **kwargs) -> pd.DataFrame:
 
 
 def insert_into_db(df: pd.DataFrame, method: str, associated_sample: Sample, 
-        session: object, **kwargs) -> None:
+        session: object, assembly_path: str=None, **kwargs) -> None:
     """
     interface function to import data of generic pandas.DataFrame format to db
     params:
@@ -77,30 +77,30 @@ def insert_into_db(df: pd.DataFrame, method: str, associated_sample: Sample,
     """
     if method == "isescan":
         return insert_generic_contig_results(df, associated_sample, session, 
-                to_db_columns=ISESCAN_DB_COLUMNS, model=ISEScanResult)
+                to_db_columns=ISESCAN_DB_COLUMNS, model=ISEScanResult, **kwargs)
     elif method == "bakta":
         return insert_generic_contig_results(df, associated_sample, session,
-                to_db_columns=BAKTA_DB_COLUMNS, model=BaktaResult)
+                to_db_columns=BAKTA_DB_COLUMNS, model=BaktaResult, **kwargs)
     elif method == "resfinder":
-        add_new_sequences(df, session)
-        if kwargs.get("assembly_path"):
-            df = add_contig_info(df, kwargs["assembly_path"])
-        return insert_into_resfinder_results(df, associated_sample, session)
+        add_new_sequences(df, session, ResfinderSequence)
+        if assembly_path:
+            df = add_contig_info(df, assembly_path)
+        return insert_into_resfinder_results(df, associated_sample, session, **kwargs)
     elif method == "pointfinder":
-        return insert_into_pointfinder_results(df, associated_sample, session)
+        return insert_into_pointfinder_results(df, associated_sample, session, **kwargs)
     elif method == "mobtyper":
-        return insert_generic_contig_results(df, associated_sample, session,
+        return insert_generic_contig_results(df, associated_sample, session, **kwargs,
                 to_db_columns=MOBTYPER_DB_COLUMNS, model=MobTyperResult)
     elif method == "plasmidfinder":
         return insert_generic_contig_results(df, associated_sample, session,
                 to_db_columns=PLASMIDFINDER_DB_COLUMNS, model=PlasmidfinderResult, 
-                create_contig=True, contig_name_col='contig_name')
+                create_contig=True, contig_name_col='contig_name', **kwargs)
     elif method == "phispy":
         return insert_generic_contig_results(df, associated_sample, session,
                 to_db_columns=PHISPY_DB_COLUMNS, model=PhispyResults, 
-                create_contig=True, contig_name_col='contig_name')
+                create_contig=True, contig_name_col='contig_name', **kwargs)
     elif method == "speciesfinder":
-        return insert_into_speciesfinder_results(df, associated_sample, session)
+        return insert_into_speciesfinder_results(df, associated_sample, session, **kwargs)
     else:
         raise LookupError (f"Method not implemented: {method}")
 

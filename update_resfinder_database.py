@@ -13,7 +13,9 @@ from Bio import SeqIO
 from amrdb.models import Base, ResfinderSequence, Phenotype, ResfinderResult, \
         phenotype_association_table, Sample, Contig, PointfinderResult, \
         ISEScanResult, BaktaResult, MobTyperResult, InVitroResult, \
-        PlasmidfinderResult, PhispyResults, SpeciesfinderResult
+        PlasmidfinderResult, PhispyResults, SpeciesfinderResult,\
+        pointfinder_phenotype_association_table, ToolVersion, \
+        Sequence, AmrfinderSequence, AmrfinderResult
 from amrdb.util import calc_sequence_hash, get_or_create
 
 from sqlalchemy import create_engine, insert, text, inspect 
@@ -33,8 +35,14 @@ parser.add_argument('-u','--user',dest='dbuser', help="mysql database username",
 parser.add_argument('-p','--password',dest='mariadbpassword',
         help="mysql password", required=False)
 parser.add_argument('--resfinder_db', dest='resfinder_db_dir',
-        help="path to resfinder github checkout", required=False,
+        help="path to resfinder_db local git checkout", required=False,
         default="resfinder_db")
+#parser.add_argument('--pointfinder_db', dest='pointfinder_db_dir',
+#        help="path to pointfinder_db local git checkout (currently not functional)",
+#        required=False, default='pointfinder_db')
+parser.add_argument('--amrfinder_db', dest='amrfinder_db_dir',
+        help="path to amrfinder_db previously downloaded",
+        required=False, default='/db/amrfinder/latest')
 
 
 def read_resfinder_databases(resfinder_db_dir):
@@ -51,7 +59,24 @@ def read_resfinder_databases(resfinder_db_dir):
                     "crc32_hash":calc_sequence_hash(str(seqrecord.seq))}
             entries.append(entry)
         
-    return entries
+    return pd.DataFrame.from_records(entries)
+
+
+def read_amrfinder_database(amrfinder_db_dir):
+    entries = []
+    db_file = os.path.join(amrfinder_db_dir,"AMRProt")
+    for seqrecord in SeqIO.parse(db_file, "fasta"):
+        protein_gi, accession, _, _, name, short_name, activity_type, core_status,\
+                phenotype, class_name, long_name = seqrecord.description.split("|")
+        entry = {"name": name, "sequence":str(seqrecord.seq),
+                "crc32_hash":calc_sequence_hash(str(seqrecord.seq)),
+                "short_name": short_name, "activity_type": activity_type,
+                "Phenotype": phenotype, "Class": class_name, "long_name": long_name,
+                "is_core": True if int(core_status) > 1 else False,
+                "accession": accession,
+                }
+        entries.append(entry)
+    return pd.DataFrame.from_records(entries)
 
 
 def read_phenotypes(resfinder_db_dir):
@@ -69,9 +94,26 @@ def read_phenotypes(resfinder_db_dir):
     return phenotypes
 
 
-def identify_columns(records):
+def read_pointfinder_phenotypes(pointfinder_db_dir):
     """
-    uses records list of dicts to create dataframe and splits name using regex
+    read all pointmutations from database and establish connection between
+    phenotypes and mutations. problem: pointfinder reports mutation differently
+    and generates the output name in very complex decision tree.
+    #TODO write a function that imports all possible pointfinder results before
+    #current behaviour: create database entries on the fly when result is imported
+    """
+    #TODO finish this function
+    #
+    search_pattern = f"pointfinder_db_dir/*/resistens-overview.txt"
+    for phenotype_table_file in glob.glob(search_pattern):
+        organism = os.path.basename(os.path.dirname(phenotype_table_file))
+        df = pandas.read_csv(phenotype_table_file, sep="\t")
+        #
+
+
+def identify_columns(df):
+    """
+    uses dataframe and splits name using regex
         into short_name, main_numbering, subseq_numbering and accession
     subseq_numbering: internally used as allels of z.B. sul1 which are never
         shown to user (e.g. 1)
@@ -81,7 +123,6 @@ def identify_columns(records):
     short_name: basic gene name (e.g. blaTEM)
     """    
     name_split_regex = "([^_]*)[-_]([^_]*)_([A-Z]+_[A-Z0-9.]*|[A-Z0-9.]*):*.*$"
-    df = pd.DataFrame.from_records(records)
     df[["short_name","subseq_numbering","accession"]] = \
             df["name"].str.extract(name_split_regex, expand=True)
 
@@ -94,7 +135,7 @@ def identify_columns(records):
     return df
 
 
-def update_existing_sequences(df_new, session):
+def update_existing_sequences(df_new, session, tool_model):
     """
     Updates all sequence-names, numbering and accession in database:
     not sequence, crc32_hash or internal identifier unless newly added
@@ -105,14 +146,14 @@ def update_existing_sequences(df_new, session):
     """
     df_new.replace([np.nan], [None], inplace=True)
     for i, row in df_new.iterrows():
-        entry = session.query(ResfinderSequence).filter_by(
+        entry = session.query(Sequence).filter_by(
                 crc32_hash=row["crc32_hash"])
         if entry.count() > 1: # deal with collisions
             entry = entry.filter_by(sequence=row["sequence"]).first()
         else:
             entry = entry.first()
         if entry:
-            print(f"updating {entry.name} with {row}")
+            print(f"updating {entry} with {row}")
             for key, value in row.items():
                 setattr(entry, key, value)
         else:
@@ -121,12 +162,16 @@ def update_existing_sequences(df_new, session):
             # i.e. only in case a completely new type of sequence 
             # not variant/allel is added
             print(f"adding new {row}")
-            session.add(ResfinderSequence(**row))
+            new_sequence = Sequence(crc32_hash=row["crc32_hash"],
+                    sequence=row["sequence"])
+            del row["sequence"]
+            del row["crc32_hash"]
+            session.add(tool_model(**row, stored_sequence=new_sequence))
 
     session.commit()
 
 
-def write_phenotypes(phenotypes_df, session):
+def write_phenotypes(phenotypes_df, session, tool_model):
     """
     create entries for phenotypes adding links to sequence by accession
     by recreating from scratch we update the phenotype associated with sequences
@@ -134,9 +179,10 @@ def write_phenotypes(phenotypes_df, session):
     if they are published in database with official name
     """
     for groupname, sub_df in phenotypes_df.groupby(["Phenotype","Class"]):
-        linked_sequences = session.query(ResfinderSequence).filter(
-                ResfinderSequence.accession.in_(
+        linked_models = session.query(tool_model).filter(
+                tool_model.accession.in_(
                     sub_df["sequence_identifier"].to_list())).all()
+        linked_sequences = [s.stored_sequence for s in linked_models]
         phenotype = get_or_create(session, Phenotype, phenotype=groupname[0],
                 class_name=groupname[1])
         for l in linked_sequences:
@@ -153,6 +199,10 @@ def main():
     records = read_resfinder_databases(args.resfinder_db_dir)
     sequences_df = identify_columns(records)
     phenotypes_df = read_phenotypes(args.resfinder_db_dir)
+    amrfinder_df = read_amrfinder_database(args.amrfinder_db_dir)
+    amrfinder_phenotype_df = amrfinder_df[["Phenotype","Class","accession"]]\
+            .rename(columns={"accession":"sequence_identifier"})
+    amrfinder_df = amrfinder_df.drop(["Phenotype","Class"], axis=1)
 
     # establish connection to database
     if args.hostname:
@@ -167,12 +217,16 @@ def main():
     # get all tables from database
     insp = inspect(engine)
     if not insp.has_table(ResfinderSequence.__table__.name):
+        print("create new database")
         # create tables if not existing yet, only first initialization
         # assume others also not existing (i.e when run for first time)
         ResfinderSequence.__table__.create(engine) 
+        AmrfinderSequence.__table__.create(engine)
         Sample.__table__.create(engine)
         Contig.__table__.create(engine)
+        Sequence.__table__.create(engine)
         ResfinderResult.__table__.create(engine)
+        AmrfinderResult.__table__.create(engine)
         PointfinderResult.__table__.create(engine)
         #ISEScanResult.__table__.create(engine)
         BaktaResult.__table__.create(engine)
@@ -182,21 +236,26 @@ def main():
         PlasmidfinderResult.__table__.create(engine)
         ISEScanResult.__table__.create(engine)
         PhispyResults.__table__.create(engine)
-    SpeciesfinderResult.__table__.create(engine)
+        SpeciesfinderResult.__table__.create(engine)
+        ToolVersion.__table__.create(engine)
+        pointfinder_phenotype_association_table.create(engine)
     
-
     # always drop phenotype association table and create newly
     if insp.has_table(phenotype_association_table.name):
         phenotype_association_table.drop(engine)
     phenotype_association_table.create(engine)
-    session.commit()    
+    session.commit()
 
     # connect the defined classes to the data in db:
     Base.prepare(engine)
 
     # write database entries:
-    update_existing_sequences(sequences_df, session)
-    write_phenotypes(phenotypes_df, session)
+    print("start filling resfinder sequences to database")
+    update_existing_sequences(sequences_df, session, ResfinderSequence)
+    write_phenotypes(phenotypes_df, session, ResfinderSequence)
+    print("start filling amrfinder sequences to database")
+    update_existing_sequences(amrfinder_df, session, AmrfinderSequence)
+    write_phenotypes(amrfinder_phenotype_df, session, AmrfinderSequence)
 
     session.commit()
     session.close()

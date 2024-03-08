@@ -3,7 +3,7 @@
 import os
 import argparse
 
-from amrdb.models import Base, Sample 
+from amrdb.models import Base, Sample, ToolVersion
 from amrdb.interfaces import read_result, insert_into_db
 from amrdb.util import get_or_create
 
@@ -33,6 +33,11 @@ parser.add_argument('--method', dest='method',
 parser.add_argument('--mode', dest='mode', 
         help='define which input type was used (fasta/fastq) ' \
                 + '- only in use for resfinder [fasta]', default='fasta')
+parser.add_argument('--tool_version', dest='tool_version',
+        help="string to describe the version of the tool used [unknown]",
+        default='unknown')
+parser.add_argument('--db_version', dest='db_version',
+        help="string to describe database version (optional)", required=False)
 
 # optional reference to external id or provide a sample_name or both
 parser.add_argument('--external_id', dest='external_id', 
@@ -75,15 +80,25 @@ def main():
         sample_args["name"] = args.sample_name
     if args.external_id:
         sample_args["external_id"] = args.external_id
-    if len(sample_args) == 0:
-        # create sample without sample name or external id
-        associated_sample = get_or_create(session, Sample,
-                name=args.sample_name, external_id=args.external_id)
-    else:
-        associated_sample = get_or_create(session, Sample, **sample_args)
+    associated_sample = get_or_create(session, Sample, **sample_args)
+
+    # create db entry
+    version_args = {
+            "db_version": args.db_version,
+            "tool_name": args.method,
+            "input_type": args.mode,
+            "tool_version": args.tool_version,
+        }
+    # remove optional parameters which are nullable (None not accepted as value)
+    for key in list(version_args.keys()):
+        if version_args[key] == None:
+            del version_args[key]
+    version = get_or_create(session, ToolVersion, **version_args)
+
     results_df = read_result(args.input_path, args.method, **read_kwargs)
+    
     insert_into_db(results_df, args.method, associated_sample, session, 
-            **insert_kwargs)
+            version_associated=version, **insert_kwargs)
 
     if (args.method == "resfinder" 
             and os.path.exists(f"{args.input_path}/PointFinder_results.txt")):
@@ -91,7 +106,7 @@ def main():
                 **read_kwargs)
         pointfinder_df["input_type"] = args.mode
         insert_into_db(pointfinder_df, "pointfinder", associated_sample,
-                session, **insert_kwargs)
+                session, version_associated=version, **insert_kwargs)
 
     session.commit()
     session.close()
