@@ -104,7 +104,6 @@ def main():
             and os.path.exists(f"{args.input_path}/PointFinder_results.txt")):
         pointfinder_df = read_result(args.input_path, "pointfinder", 
                 **read_kwargs)
-        pointfinder_df["input_type"] = args.mode
         insert_into_db(pointfinder_df, "pointfinder", associated_sample,
                 session, version_associated=version, **insert_kwargs)
 

@@ -3,8 +3,8 @@ from Bio import SeqIO
 
 from .util import get_or_create
 from .models import ResfinderSequence, Contig, ResfinderResult, \
-        PointfinderResult, SpeciesfinderResult, Phenotype, Sequence, \
-        AmrfinderSequence
+        PointfinderResult, SpeciesfinderResult, Phenotype, \
+        AmrfinderSequence, AmrfinderPointResult
 from sqlalchemy.exc import NoResultFound
 
 
@@ -28,8 +28,7 @@ def insert_into_resfinder_results(df, associated_sample, session, **kwargs):
             row["orientation"] = None
         sequence = session.query(ResfinderSequence).filter_by(accession=row["accession"])
         if sequence.count() > 1:
-            exact_matches = sequence.join(ResfinderSequence.stored_sequence)\
-                    .filter_by(crc32_hash=row["crc32_hash"])
+            exact_matches = sequence.filter_by(crc32_hash=row["crc32_hash"])
             if exact_matches.count() != 1:
                 # no perfect match -> use first with accession (original entry)
                 sequence = sequence.first()
@@ -100,22 +99,20 @@ def add_new_sequences(df, session, tool_model):
     above_threshold = (df["identity"] >= 95) & (df["coverage"] > 95)
 
     for i, row in df[not_identical & no_issues & above_threshold].iterrows():
-        entry = session.query(Sequence).filter_by(crc32_hash=row["crc32_hash"])
+        entry = session.query(tool_model).filter_by(crc32_hash=row["crc32_hash"])
         if entry.count() > 1: # deal with collisions
             entry = entry.filter_by(sequence=row["sequence"]).first()
         else:
             entry = entry.first()
         if not entry:
             #derive phenotypes from best hit accession - important: Display Warning in UI!
-            phenotype_list = session.query(ResfinderSequence).filter_by(
-                    accession=row["accession"]).first().stored_sequence.phenotypes
-            new_sequence = Sequence(crc32_hash=row["crc32_hash"], sequence=row["sequence"],
-                    phenotypes=phenotype_list)
-            session.add(new_sequence)
-            session.add(ResfinderSequence(
+            phenotype_list = session.query(tool_model).filter_by(
+                    accession=row["accession"]).first().phenotypes
+            session.add(tool_model(
                 name=(row["Resistance gene"] + "_AGES_"+row["crc32_hash"]),
-                stored_sequence=new_sequence, accession=row["accession"],
-                internal_numbering="AGES_"+row["crc32_hash"]))
+                accession=row["accession"], crc32_hash=row["crc32_hash"], 
+                sequence=row["sequence"], internal_numbering="AGES_"+row["crc32_hash"],
+                phenotypes=phenotype_list))
 
     session.commit()
 

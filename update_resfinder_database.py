@@ -11,11 +11,13 @@ import pandas as pd
 from Bio import SeqIO
 
 from amrdb.models import Base, ResfinderSequence, Phenotype, ResfinderResult, \
-        phenotype_association_table, Sample, Contig, PointfinderResult, \
-        ISEScanResult, BaktaResult, MobTyperResult, InVitroResult, \
-        PlasmidfinderResult, PhispyResults, SpeciesfinderResult,\
-        pointfinder_phenotype_association_table, ToolVersion, \
-        Sequence, AmrfinderSequence, AmrfinderResult
+        Sample, Contig, PointfinderResult, ISEScanResult, BaktaResult, \
+        MobTyperResult, InVitroResult, PlasmidfinderResult, PhispyResults, \
+        SpeciesfinderResult, pointfinder_phenotype_association_table, ToolVersion, \
+        AmrfinderSequence, AmrfinderResult, AmrfinderPointResult, \
+        amrfinder_point_phenotype_association_table, \
+        amrfinder_phenotype_association_table, resfinder_phenotype_association_table
+
 from amrdb.util import calc_sequence_hash, get_or_create
 
 from sqlalchemy import create_engine, insert, text, inspect 
@@ -146,7 +148,7 @@ def update_existing_sequences(df_new, session, tool_model):
     """
     df_new.replace([np.nan], [None], inplace=True)
     for i, row in df_new.iterrows():
-        entry = session.query(Sequence).filter_by(
+        entry = session.query(tool_model).filter_by(
                 crc32_hash=row["crc32_hash"])
         if entry.count() > 1: # deal with collisions
             entry = entry.filter_by(sequence=row["sequence"]).first()
@@ -162,11 +164,7 @@ def update_existing_sequences(df_new, session, tool_model):
             # i.e. only in case a completely new type of sequence 
             # not variant/allel is added
             print(f"adding new {row}")
-            new_sequence = Sequence(crc32_hash=row["crc32_hash"],
-                    sequence=row["sequence"])
-            del row["sequence"]
-            del row["crc32_hash"]
-            session.add(tool_model(**row, stored_sequence=new_sequence))
+            session.add(tool_model(**row))
 
     session.commit()
 
@@ -179,14 +177,19 @@ def write_phenotypes(phenotypes_df, session, tool_model):
     if they are published in database with official name
     """
     for groupname, sub_df in phenotypes_df.groupby(["Phenotype","Class"]):
-        linked_models = session.query(tool_model).filter(
+        linked_sequences = session.query(tool_model).filter(
                 tool_model.accession.in_(
                     sub_df["sequence_identifier"].to_list())).all()
-        linked_sequences = [s.stored_sequence for s in linked_models]
         phenotype = get_or_create(session, Phenotype, phenotype=groupname[0],
                 class_name=groupname[1])
         for l in linked_sequences:
-            phenotype.sequences.append(l)
+            print(tool_model.name)
+            print(tool_model.__name__)
+            print(dir(tool_model))
+            if tool_model.__name__.startswith("Resfinder"):
+                phenotype.resfinder_sequences.append(l)
+            elif tool_model.__name__.startswith("Amrfinder"):
+                phenotype.amrfinder_sequences.append(l)
         session.add(phenotype)
     session.commit()
 
@@ -224,9 +227,9 @@ def main():
         AmrfinderSequence.__table__.create(engine)
         Sample.__table__.create(engine)
         Contig.__table__.create(engine)
-        Sequence.__table__.create(engine)
         ResfinderResult.__table__.create(engine)
         AmrfinderResult.__table__.create(engine)
+        AmrfinderPointResult.__table__.create(engine)
         PointfinderResult.__table__.create(engine)
         #ISEScanResult.__table__.create(engine)
         BaktaResult.__table__.create(engine)
@@ -239,11 +242,13 @@ def main():
         SpeciesfinderResult.__table__.create(engine)
         ToolVersion.__table__.create(engine)
         pointfinder_phenotype_association_table.create(engine)
+        amrfinder_point_phenotype_association_table.create(engine)
+        amrfinder_phenotype_association_table.create(engine)
     
     # always drop phenotype association table and create newly
-    if insp.has_table(phenotype_association_table.name):
-        phenotype_association_table.drop(engine)
-    phenotype_association_table.create(engine)
+    if insp.has_table(resfinder_phenotype_association_table.name):
+        resfinder_phenotype_association_table.drop(engine)
+    resfinder_phenotype_association_table.create(engine)
     session.commit()
 
     # connect the defined classes to the data in db:
