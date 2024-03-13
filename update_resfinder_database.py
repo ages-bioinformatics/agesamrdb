@@ -204,6 +204,11 @@ def main():
             .rename(columns={"accession":"sequence_identifier"})
     amrfinder_phenotype_df["Phenotype"] = amrfinder_phenotype_df["Phenotype"].str.split("/")
     amrfinder_phenotype_df = amrfinder_phenotype_df.explode("Phenotype")
+    #TODO hacky intermediate solution to solve issues
+    # create a curated look-up table of phenotypes and class-associations,
+    # and initialize on first call!
+    amrfinder_phenotype_df["Class"] = amrfinder_phenotype_df["Class"].str.split("/")
+    amrfinder_phenotype_df = amrfinder_phenotype_df.explode("Class")
     amrfinder_df = amrfinder_df.drop(["Phenotype","Class"], axis=1)
 
     # establish connection to database
