@@ -227,7 +227,7 @@ def main():
         AmrfinderSequence.__table__.create(engine)
         Sample.__table__.create(engine)
         Contig.__table__.create(engine)
-	ToolVersion.__table__.create(engine)
+        ToolVersion.__table__.create(engine)
         ResfinderResult.__table__.create(engine)
         AmrfinderResult.__table__.create(engine)
         AmrfinderPointResult.__table__.create(engine)
