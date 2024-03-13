@@ -183,9 +183,6 @@ def write_phenotypes(phenotypes_df, session, tool_model):
         phenotype = get_or_create(session, Phenotype, phenotype=groupname[0],
                 class_name=groupname[1])
         for l in linked_sequences:
-            print(tool_model.name)
-            print(tool_model.__name__)
-            print(dir(tool_model))
             if tool_model.__name__.startswith("Resfinder"):
                 phenotype.resfinder_sequences.append(l)
             elif tool_model.__name__.startswith("Amrfinder"):
@@ -205,6 +202,8 @@ def main():
     amrfinder_df = read_amrfinder_database(args.amrfinder_db_dir)
     amrfinder_phenotype_df = amrfinder_df[["Phenotype","Class","accession"]]\
             .rename(columns={"accession":"sequence_identifier"})
+    amrfinder_phenotype_df["Phenotype"] = amrfinder_phenotype_df["Phenotype"].str.split("/")
+    amrfinder_phenotype_df = amrfinder_phenotype_df.explode("Phenotype")
     amrfinder_df = amrfinder_df.drop(["Phenotype","Class"], axis=1)
 
     # establish connection to database
