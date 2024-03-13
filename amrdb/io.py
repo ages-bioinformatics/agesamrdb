@@ -1,4 +1,5 @@
 from Bio import SeqIO
+import os
 import pandas as pd
 import json
 
@@ -45,6 +46,26 @@ def read_mobtyper_results(input_file: str) -> pd.DataFrame:
     return df
     
 
+def parse_fasta_hits(sequence_file: str, translate: bool=False) -> pd.DataFrame:
+    """
+    parses sequence fasta originating from hits (and might translate)
+    """
+    sequences = []
+    for i, seqrecord in enumerate(SeqIO.parse(sequence_file, "fasta")):
+        comment = gene_quality_control(seqrecord)
+        if not comment and translate:
+            seq = str(seqrecord.seq.translate())
+        else:
+            seq = str(seqrecord.seq)
+        sequences.append((seqrecord.id.strip(","), seq, comment,
+            calc_sequence_hash(seq), seqrecord.description))
+
+    columns = ["Resistance gene", "sequence", "qc_issues","crc32_hash","desc"]
+    df_sequences = pd.DataFrame(sequences, columns=columns)
+
+    return df_sequences
+
+
 def read_resfinder_results(resfinder_dir: str, 
         extract_coordinates: bool=True) -> pd.DataFrame:
     """
@@ -53,15 +74,7 @@ def read_resfinder_results(resfinder_dir: str,
         extracted
     """
     # read sequences to df
-    sequences = []
-    sequence_file=f"{resfinder_dir}/ResFinder_Hit_in_genome_seq.fsa"
-    for i, seqrecord in enumerate(SeqIO.parse(sequence_file, "fasta")):
-        comment = gene_quality_control(seqrecord)
-        sequences.append((seqrecord.id.strip(","), str(seqrecord.seq), comment,
-            calc_sequence_hash(str(seqrecord.seq)), seqrecord.description))
-
-    columns = ["Resistance gene", "sequence", "qc_issues","crc32_hash","desc"]
-    df_sequences = pd.DataFrame(sequences, columns=columns)
+    df_sequences = parse_fasta_hits(os.path.join(resfinder_dir,"ResFinder_Hit_in_genome_seq.fsa"))
 
     pos_regex = "Contig name: (.*?), Position: ([NA0-9]*\.\.[NA0-9]*)"
     df_sequences[["Contig","Position in contig"]] = df_sequences["desc"].str.extract(pos_regex, expand=True)
@@ -165,4 +178,44 @@ def read_speciesfinder_results(input_file: str) -> pd.DataFrame:
                                     json_data['speciesfinder']['user_input']['method']
     df = df.rename(columns=column_mapping)
     return df
-    
+
+
+def read_amrfinder_results(input_dir: str) -> pd.DataFrame:
+    """
+    important! default output for amrfinder is only tabular file
+    input required here is an output directory which contains two
+    files: "amrfinder_results.txt" (-o/--output) and
+    "amrfinder_nucleotides.fasta" (--nucleotide_output)
+    both are assumed to be present in the input directoy (and named accordingly)
+    !!!this is not a default output-naming scheme of amrfinder, only our workflow!!!
+    """
+    # renaming scheme for tabular result (and used columns)
+    column_mapping = {
+            "Contig id": "contig_name",
+            "Start": "ref_start_pos",
+            "Stop": "ref_stop_pos",
+            "Strand": "orientation",
+            "Gene symbol": "name",
+            "Sequence name": "long_name",
+            "Scope": "scope",
+            "Method": "method",
+            "% Coverage of reference sequence": "coverage",
+            "% Identity to reference sequence": "identity",
+            "Accession of closest sequence": "accession",
+    }
+    # parse tabular result
+    df = pd.read_csv(os.path.join(input_dir,"amrfinder_results.txt"), sep="\t")
+    df = df.rename(columns = column_mapping)
+    df = df[[v for v in column_mapping.values()]].copy()
+
+    # parse fasta-result
+    df_sequences = parse_fasta_hits(os.path.join(input_dir,"amrfinder_nucleotides.fasta"),
+            translate=True)
+    pos_regex = r"(^.*?):(\d+)-(\d+) ([+-])"
+    df_sequences[["contig_name","ref_start_pos","ref_stop_pos","orientation"]] =\
+            df_sequences["desc"].str.extract(pos_regex, expand=True)
+
+    df["contig_len"] = None #TODO add info?
+    df = df.merge(df_sequences, on=["contig_name","ref_start_pos","ref_stop_pos","orientation"])
+
+    return df

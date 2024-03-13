@@ -10,6 +10,7 @@ rm -f ./agres.db
 
 python update_resfinder_database.py
 
+python amrdb_add_results.py --method amrfinder -i "testdata" --tool_version "test"
 python amrdb_add_results.py --method resfinder -i "testdata/resfinder_assembly_out" --external_id 1 --assembly testdata/NRLAR-22-ESBL-22-0863-1-FH20.fasta --sample_name test --tool_version "test"
 python amrdb_add_results.py --method resfinder -i "testdata/resfinder_reads_out" --external_id 1 --mode fastq --tool_version "test"
 python amrdb_add_results.py --method isescan -i "testdata/isescan/NRLAR-22-ESBL-22-0863-1-FH20.fasta.tsv" --external_id 1 --tool_version "test"

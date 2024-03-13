@@ -4,8 +4,35 @@ from Bio import SeqIO
 from .util import get_or_create
 from .models import ResfinderSequence, Contig, ResfinderResult, \
         PointfinderResult, SpeciesfinderResult, Phenotype, \
-        AmrfinderSequence, AmrfinderPointResult
+        AmrfinderSequence, AmrfinderPointResult, AmrfinderResult
 from sqlalchemy.exc import NoResultFound
+
+
+def _get_linked_sequence_and_contig(row, associated_sample, session, method, contig_kwargs=None):
+    if method == "resfinder":
+        sequence_model = ResfinderSequence
+    elif method == "amrfinder":
+        sequence_model = AmrfinderSequence
+    if contig_kwargs:
+        associated_contig = get_or_create(session, Contig, 
+                sample_associated=associated_sample, **contig_kwargs)
+    else:
+        associated_contig = None
+    sequence = session.query(sequence_model).filter_by(accession=row["accession"])
+    if sequence.count() > 1:
+        exact_matches = sequence.filter_by(crc32_hash=row["crc32_hash"])
+        if exact_matches.count() != 1:
+            # no perfect match -> use first with accession (original entry)
+            sequence = sequence.first()
+        else:
+            sequence = exact_matches.first()
+    else:
+        sequence = sequence.first()
+    if not sequence:
+        raise NoResultFound("ERROR: missing accession in database: "
+                            + f"{row['accession']}") # update database?
+
+    return associated_contig, sequence
 
 
 def insert_into_resfinder_results(df, associated_sample, session, **kwargs):
@@ -19,29 +46,49 @@ def insert_into_resfinder_results(df, associated_sample, session, **kwargs):
     df = df.replace([np.nan], [None])
     added_results = []
     for i, row in df.iterrows():
+        contig_kwargs = {}
         if row.get("contig_name"):
-            associated_contig = get_or_create(session, Contig,
-                length=row["contig_len"], name=row["contig_name"],
-                sample_associated=associated_sample)
+            contig_kwargs["name"] = row["contig_name"]
+            contig_kwargs["length"] = row["contig_len"]
         else:
-            associated_contig = None
             row["orientation"] = None
-        sequence = session.query(ResfinderSequence).filter_by(accession=row["accession"])
-        if sequence.count() > 1:
-            exact_matches = sequence.filter_by(crc32_hash=row["crc32_hash"])
-            if exact_matches.count() != 1:
-                # no perfect match -> use first with accession (original entry)
-                sequence = sequence.first()
-            else:
-                sequence = exact_matches.first()
-        else:
-            sequence = sequence.first()
-        if not sequence:
-            raise NoResultFound("ERROR: missing accession in database: "
-                    + f"{row['accession']}") # update database?
+
+        associated_contig, sequence = _get_linked_sequence_and_contig(row,
+                associated_sample, session, "resfinder", contig_kwargs)
+
         row = row[["identity","coverage","ref_pos_start","ref_pos_end",
             "qc_issues","orientation"]]
         added_results.append(ResfinderResult(stored_sequence=sequence,
+            contig_associated=associated_contig,
+            sample_associated=associated_sample, **row, **kwargs))
+    session.add_all(added_results)
+
+
+def insert_into_amrfinder_results(df, associated_sample, session, **kwargs):
+    df = df.replace([np.nan], [None])
+    added_results = []
+    df_points = df[df["method"].str.startswith("POINT")].copy()
+    df = df[~df_points.index].copy()
+    for i, row in df.iterrows():
+        contig_kwargs = {"name": row["contig_name"]}
+        associated_contig, sequence = _get_linked_sequence_and_contig(row,
+                associated_sample, session, "amrfinder", contig_kwargs)
+        row = row[["identity","coverage","ref_pos_start","ref_pos_end",
+                "qc_issues","orientation","method"]]
+
+        added_results.append(AmrfinderResult(stored_sequence=sequence,
+            contig_associated=associated_contig,
+            sample_associated=associated_sample, **row, **kwargs))
+
+    for i, row in df_points.iterrows():
+        contig_kwargs = {"name": row["contig_name"]}
+        associated_contig, sequence = _get_linked_sequence_and_contig(row,
+                associated_sample, session, "amrfinder", contig_kwargs)
+        row = row[["identity","coverage","ref_pos_start","ref_pos_end",
+                "qc_issues","orientation","method"]]
+        phenotypes = [get_or_create(session, Phenotype, phenotype=p) \
+                for p in row["Phenotype"].str.split("/")]
+        added_results.append(AmrfinderPointResult(phenotypes=phenotypes,
             contig_associated=associated_contig,
             sample_associated=associated_sample, **row, **kwargs))
     session.add_all(added_results)

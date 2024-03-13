@@ -1,12 +1,12 @@
 import pandas as pd
 from .models import Sample, ISEScanResult, BaktaResult, MobTyperResult, \
-        PlasmidfinderResult, PhispyResults, ResfinderSequence
+        PlasmidfinderResult, PhispyResults, ResfinderSequence, AmrfinderSequence
 from .io import read_isescan_results, read_bakta_results, read_resfinder_results, \
         read_pointfinder_results, read_mobtyper_results, read_plasmidfinder_results, \
-        read_phispy_results, read_speciesfinder_results
+        read_phispy_results, read_speciesfinder_results, read_amrfinder_results
 from .insert import insert_generic_contig_results, insert_into_resfinder_results, \
         insert_into_pointfinder_results, add_new_sequences, add_contig_info, \
-        insert_into_speciesfinder_results
+        insert_into_speciesfinder_results, insert_into_amrfinder_results
 
 
 # column names that are actually imported in database as constants
@@ -60,6 +60,8 @@ def read_result(inputpath: str, method: str, **kwargs) -> pd.DataFrame:
         return read_phispy_results(inputpath)
     elif method == "speciesfinder":
         return read_speciesfinder_results(inputpath)
+    elif method == "amrfinder":
+        return read_amrfinder_results(inputpath)
     else:
         raise LookupError(f"Method not implemented: {method}")
 
@@ -101,6 +103,9 @@ def insert_into_db(df: pd.DataFrame, method: str, associated_sample: Sample,
                 create_contig=True, contig_name_col='contig_name', **kwargs)
     elif method == "speciesfinder":
         return insert_into_speciesfinder_results(df, associated_sample, session, **kwargs)
+    elif method == "amrfinder":
+        add_new_sequences(df, session, AmrfinderSequence)
+        return insert_into_amrfinder_results(df, associated_sample, session, **kwargs)
     else:
         raise LookupError (f"Method not implemented: {method}")
 
