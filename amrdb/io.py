@@ -52,7 +52,8 @@ def parse_fasta_hits(sequence_file: str, translate: bool=False) -> pd.DataFrame:
     """
     sequences = []
     for i, seqrecord in enumerate(SeqIO.parse(sequence_file, "fasta")):
-        comment = gene_quality_control(seqrecord)
+        # amrfinder does not include stop-codon
+        comment = gene_quality_control(seqrecord, ignore_missing_stop=translate)
         if not comment and translate:
             seq = str(seqrecord.seq.translate())
         else:
@@ -192,13 +193,14 @@ def read_amrfinder_results(input_dir: str) -> pd.DataFrame:
     # renaming scheme for tabular result (and used columns)
     column_mapping = {
             "Contig id": "contig_name",
-            "Start": "ref_start_pos",
-            "Stop": "ref_stop_pos",
+            "Start": "ref_pos_start",
+            "Stop": "ref_pos_end",
             "Strand": "orientation",
             "Gene symbol": "name",
             "Sequence name": "long_name",
             "Scope": "scope",
             "Method": "method",
+            "Subclass": "Phenotype",
             "% Coverage of reference sequence": "coverage",
             "% Identity to reference sequence": "identity",
             "Accession of closest sequence": "accession",
@@ -207,15 +209,24 @@ def read_amrfinder_results(input_dir: str) -> pd.DataFrame:
     df = pd.read_csv(os.path.join(input_dir,"amrfinder_results.txt"), sep="\t")
     df = df.rename(columns = column_mapping)
     df = df[[v for v in column_mapping.values()]].copy()
+    df["is_core"] = (df["scope"] == "core")
+    df["mutation"] = df["name"]
 
     # parse fasta-result
     df_sequences = parse_fasta_hits(os.path.join(input_dir,"amrfinder_nucleotides.fasta"),
             translate=True)
-    pos_regex = r"(^.*?):(\d+)-(\d+) ([+-])"
-    df_sequences[["contig_name","ref_start_pos","ref_stop_pos","orientation"]] =\
+
+    # extract position-on-contig and merge to tabular result
+    pos_regex = r"^(.*?):(\d+)-(\d+).*([+-]) .*"
+    df_sequences[["contig_name","ref_pos_start","ref_pos_end","orientation"]] =\
             df_sequences["desc"].str.extract(pos_regex, expand=True)
 
-    df["contig_len"] = None #TODO add info?
-    df = df.merge(df_sequences, on=["contig_name","ref_start_pos","ref_stop_pos","orientation"])
+    df_sequences["ref_pos_start"] = df_sequences["ref_pos_start"].astype(int)
+    df_sequences["ref_pos_end"] = df_sequences["ref_pos_end"].astype(int)
+    df = df.merge(df_sequences, on=["contig_name","ref_pos_start","ref_pos_end","orientation"])
+
+    # fetch rare case: multiple point mutations found in the same sequence results
+    # in duplicated rows when merged by pos-on-contig only
+    df = df.drop_duplicates(subset=["contig_name","ref_pos_start","ref_pos_end","orientation","sequence"])
 
     return df

@@ -65,32 +65,38 @@ def insert_into_resfinder_results(df, associated_sample, session, **kwargs):
 
 
 def insert_into_amrfinder_results(df, associated_sample, session, **kwargs):
+    
+    # replace nan with None, sqlalchemy does not handle np.nan!
     df = df.replace([np.nan], [None])
     added_results = []
-    df_points = df[df["method"].str.startswith("POINT")].copy()
-    df = df[~df_points.index].copy()
     for i, row in df.iterrows():
         contig_kwargs = {"name": row["contig_name"]}
+        # identify linked contig and sequence (might create new contig)
         associated_contig, sequence = _get_linked_sequence_and_contig(row,
                 associated_sample, session, "amrfinder", contig_kwargs)
+
+        # specific fields not needed in both tables
+        phenotype = row["Phenotype"]
+        mutation = row["name"]
+
+        # limit to variables/columns present in both tables
         row = row[["identity","coverage","ref_pos_start","ref_pos_end",
                 "qc_issues","orientation","method"]]
 
-        added_results.append(AmrfinderResult(stored_sequence=sequence,
-            contig_associated=associated_contig,
-            sample_associated=associated_sample, **row, **kwargs))
+        # differentiate between pointresult and acquired gene result
+        if "point" in row["method"].lower():
+            phenotypes = [get_or_create(session, Phenotype, phenotype=p) \
+                                for p in phenotype.split("/")]
+            result = AmrfinderPointResult(phenotypes=phenotypes,
+                    contig_associated=associated_contig,
+                    sample_associated=associated_sample,
+                    mutation=mutation, **row, **kwargs)
+        else:
+            result = AmrfinderResult(stored_sequence=sequence,
+                contig_associated=associated_contig,
+                sample_associated=associated_sample, **row, **kwargs)
+        added_results.append(result)
 
-    for i, row in df_points.iterrows():
-        contig_kwargs = {"name": row["contig_name"]}
-        associated_contig, sequence = _get_linked_sequence_and_contig(row,
-                associated_sample, session, "amrfinder", contig_kwargs)
-        row = row[["identity","coverage","ref_pos_start","ref_pos_end",
-                "qc_issues","orientation","method"]]
-        phenotypes = [get_or_create(session, Phenotype, phenotype=p) \
-                for p in row["Phenotype"].str.split("/")]
-        added_results.append(AmrfinderPointResult(phenotypes=phenotypes,
-            contig_associated=associated_contig,
-            sample_associated=associated_sample, **row, **kwargs))
     session.add_all(added_results)
 
 
@@ -127,7 +133,7 @@ def add_contig_info(df, assembly_file):
     return df
 
 
-def add_new_sequences(df, session, tool_model):
+def add_new_sequences(df, session, tool_model, add_model_fields=[]):
     """
     in case the sequence is very similar to known genes and was detected
     but is not 100% identical, we add the entire sequence to be able
@@ -140,6 +146,8 @@ def add_new_sequences(df, session, tool_model):
     be kept also for our added sequences (phenotype association made over acn)
     tool_model: may be ResfinderSequence or AmrfinderSequence
     """
+    DEFAULT_MODEL_FIELDS = ["sequence","crc32_hash","accession"]
+    add_model_fields.extend(DEFAULT_MODEL_FIELDS)
     not_identical = (df["identity"] < 100) | (df["coverage"] != float(100))
     # qc-criteria: no frameshift, start & stopcodon present
     no_issues = (df["qc_issues"].isna())
@@ -157,9 +165,8 @@ def add_new_sequences(df, session, tool_model):
                     accession=row["accession"]).first().phenotypes
             session.add(tool_model(
                 name=(row["Resistance gene"] + "_AGES_"+row["crc32_hash"]),
-                accession=row["accession"], crc32_hash=row["crc32_hash"], 
-                sequence=row["sequence"], internal_numbering="AGES_"+row["crc32_hash"],
-                phenotypes=phenotype_list))
+                internal_numbering="AGES_"+row["crc32_hash"],
+                phenotypes=phenotype_list, **row[add_model_fields]))
 
     session.commit()
 

@@ -6,14 +6,15 @@ def calc_sequence_hash(sequence: str):
     return hex(zlib.crc32(sequence.encode('ascii')))
 
 
-def gene_quality_control(seqrecord):
+def gene_quality_control(seqrecord, ignore_missing_stop=True):
     """
     some basic quality control about the sequence :start and stopcodon, 
     checking wheter we see a frameshift
     """
     comment = []
-    if not str(seqrecord.seq[-3:]).upper() in ["TAA","TAG","TGA"]:
-        comment.append("Missing STOP codon")
+    if not ignore_missing_stop:
+        if not str(seqrecord.seq[-3:]).upper() in ["TAA","TAG","TGA"]:
+            comment.append("Missing STOP codon")
     if not str(seqrecord.seq[:3]).upper() in ["ATG", "GTG", "TTG"]:
         comment.append("Missing START codon")
     if not len(seqrecord.seq.replace("-","")) % 3 == 0:

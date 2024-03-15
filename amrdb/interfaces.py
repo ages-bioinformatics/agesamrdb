@@ -104,7 +104,7 @@ def insert_into_db(df: pd.DataFrame, method: str, associated_sample: Sample,
     elif method == "speciesfinder":
         return insert_into_speciesfinder_results(df, associated_sample, session, **kwargs)
     elif method == "amrfinder":
-        add_new_sequences(df, session, AmrfinderSequence)
+        add_new_sequences(df[~df["method"].str.contains("POINT")], session, AmrfinderSequence, ["long_name","is_core"])
         return insert_into_amrfinder_results(df, associated_sample, session, **kwargs)
     else:
         raise LookupError (f"Method not implemented: {method}")

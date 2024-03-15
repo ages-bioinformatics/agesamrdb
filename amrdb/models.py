@@ -71,8 +71,8 @@ class AmrfinderSequence(Base):
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     short_name: Mapped[str] = mapped_column(String(50), nullable=True)
     accession: Mapped[str] = mapped_column(String(50), nullable=False)
-    activity_type: Mapped[str] = mapped_column(String(50), nullable=False)
-    is_core: Mapped[bool] = mapped_column(Boolean(), nullable=False)
+    activity_type: Mapped[str] = mapped_column(String(50), nullable=True)
+    is_core: Mapped[bool] = mapped_column(Boolean(), nullable=True)
     long_name: Mapped[str] = mapped_column(String(1000), nullable=False)
     internal_numbering: Mapped[str] = mapped_column(String(100), nullable=True)
     crc32_hash: Mapped[str] = mapped_column(String(10), nullable=False)
@@ -236,6 +236,9 @@ class AmrfinderResult(AmrfinderResultMixin, Base):
 
 class AmrfinderPointResult(AmrfinderResultMixin, Base):
     __tablename__ = "amrfinder_point_result"
+
+    # Columns in Table (physically)
+    mutation: Mapped[str] = mapped_column(String(100))
 
     # Relationships:
     phenotypes: Mapped[List["Phenotype"]] = relationship(
