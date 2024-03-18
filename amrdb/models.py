@@ -208,7 +208,7 @@ class AmrfinderResultMixin(object):
     ref_pos_end: Mapped[int] = mapped_column(Integer(), nullable=True)
     qc_issues: Mapped[str] = mapped_column(String(1000), nullable=True)
     orientation: Mapped[str] = mapped_column(String(1), nullable=True)
-    method: Mapped[str] = mapped_column(String(10), nullable=True)
+    method: Mapped[str] = mapped_column(String(30), nullable=True)
 
     # Foreign Keys
     sample_id: Mapped[int] = mapped_column(ForeignKey("sample.id", ondelete="CASCADE"), nullable=False)
