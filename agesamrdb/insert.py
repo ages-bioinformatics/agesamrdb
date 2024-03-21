@@ -76,7 +76,7 @@ def insert_into_amrfinder_results(df, associated_sample, session, **kwargs):
                 associated_sample, session, "amrfinder", contig_kwargs)
 
         # specific fields not needed in both tables
-        phenotype = row["Phenotype"]
+        phenotype = row["Phenotype"].title()
         mutation = row["name"]
 
         # limit to variables/columns present in both tables
@@ -85,8 +85,8 @@ def insert_into_amrfinder_results(df, associated_sample, session, **kwargs):
 
         # differentiate between pointresult and acquired gene result
         if "point" in row["method"].lower():
-            phenotypes = [get_or_create(session, Phenotype, phenotype=p) \
-                                for p in phenotype.split("/")]
+            phenotypes = [get_or_create(session, Phenotype,
+                phenotype=p.strip().title()) for p in phenotype.split("/")]
             result = AmrfinderPointResult(phenotypes=phenotypes,
                     contig_associated=associated_contig,
                     sample_associated=associated_sample,

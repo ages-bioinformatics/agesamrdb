@@ -1,0 +1,180 @@
+class_name	phenotype
+Intimin	Alpha
+Aminoglycoside	Amikacin
+Aminoglycoside	Aminoglycoside
+Beta-Lactam	Amoxicillin
+Beta-Lactam	Amoxicillin+Clavulanic Acid
+Beta-Lactam	Ampicillin
+Beta-Lactam	Ampicillin+Clavulanic Acid
+Aminoglycoside	Apramycin
+Aminoglycoside	Arbekacin
+Arsenic	Arsenate
+Arsenic	Arsenic
+Arsenic	Arsenite
+Aminoglycoside	Astromicin
+Avilamycin	Avilamycin
+Macrolide	Azithromycin
+Beta-Lactam	Aztreonam
+Bacitracin	Bacitracin
+Intimin	Beta
+Beta-Lactam	Beta-Lactam
+Bleomycin	Bleomycin
+Aminoglycoside	Butiromycin
+Aminoglycoside	Butirosin
+Cadmium	Cadmium
+Tuberactinomycin	Capreomycin
+Beta-Lactam	Carbapenem
+Macrolide	Carbomycin
+Beta-Lactam	Cefepime
+Beta-Lactam	Cefiderocol
+Beta-Lactam	Cefixime
+Beta-Lactam	Cefotaxime
+Beta-Lactam	Cefotaxime+Clavulanic Acid
+Beta-Lactam	Cefoxitin
+Beta-Lactam	Ceftaroline
+Beta-Lactam	Ceftazidime
+Beta-Lactam	Ceftazidime+Avibactam
+Beta-Lactam	Ceftiofur
+Beta-Lactam	Ceftriaxone
+Beta-Lactam	Cephalosporin
+Beta-Lactam	Cephalothin
+Beta-Lactam	Cephalotin
+Phenicol	Chloramphenicol
+Chromate	Chromate
+Quinolone	Ciprofloxacin
+Macrolide	Clarithromycin
+Lincosamide	Clindamycin
+Cobalt	Cobalt
+Polymyxin	Colistin
+Streptogramin A	Dalfopristin
+Aminoglycoside	Dibekacin
+Tetracycline	Doxycycline
+Efflux	Efflux
+Intimin	Epsilon
+Beta-Lactam	Ertapenem
+Macrolide	Erythromycin
+Amphenicol	Florfenicol
+Fluoride	Fluoride
+Fluoroquinolone	Fluoroquinolone
+Aminoglycoside	Fortimicin
+Fosfomycin	Fosfomycin
+Steroid Antibacterial	Fusidic Acid
+Intimin	Gamma
+Aminoglycoside	Gentamicin
+Gold	Gold
+Aminoglycoside	Hygromycin
+Beta-Lactam	Imipenem
+Intimin	Iota
+Aminoglycoside	Isepamicin
+Aminoglycoside	Kanamycin
+Intimin	Kappa
+Aminoglycoside	Kasugamycin
+Intimin	Lambda
+Lead	Lead
+Lincosamide	Lincomycin
+Lincosamide	Lincosamide
+Oxazolidinone	Linezolid
+Aminoglycoside	Lividomycin
+Macrolide	Macrolide
+Ionophore	Maduramicin
+Mercury	Mercury
+Beta-Lactam	Meropenem
+Beta-Lactam	Methicillin
+Nitroimidazole	Metronidazole
+Tetracycline	Minocycline
+Mupirocin	Mupirocin
+Ionophore	Narasin
+Aminoglycoside	Neomycin
+Aminoglycoside	Netilmicin
+Nickel	Nickel
+Nitroimidazole	Nitroimidazole
+Intimin	Nu
+Macrolide	Oleandomycin
+Arsenic	Organoarsenic
+Mercury	Organomercury
+Streptogramin	Ostreogrycin
+Oxazolidinone	Oxazolidinone
+Aminoglycoside	Paromomycin
+Beta-Lactam	Penicillin
+Phenicol	Phenicol
+Mercury	Phenylmercury
+Beta-Lactam	Piperacillin
+Beta-Lactam	Piperacillin+Clavulanic Acid
+Beta-Lactam	Piperacillin+Tazobactam
+Pleuromutilin	Pleuromutilin
+Streptogramin	Pristinamycin
+Streptogramin	Pristinamycin Ia
+Streptogramin	Pristinamycin Iia
+Quaternary Ammonium	Quaternary Ammonium
+Quinolone	Quinolone
+Streptogramin B	Quinupristin
+Pleuromutilin	Retapamulin
+Intimin	Rho
+Aminoglycoside	Ribostamycin
+Rifamycin	Rifampicin
+Rifamycin	Rifampin
+Rifamycin	Rifamycin
+Ionophore	Salinomycin
+Silver	Silver
+Aminoglycoside	Sisomicin
+Aminoglycoside	Spectinomycin
+Macrolide	Spiramycin
+Streptogramin	Streptogramin
+Streptogramin	Streptogramin A
+Streptogramin	Streptogramin B
+Aminoglycoside	Streptomycin
+Streptothricin	Streptothricin
+Stx1	Stx1A
+Stx1	Stx1C
+Stx1	Stx1D
+Stx1	Stx1E
+Stx2	Stx2A
+Stx2	Stx2B
+Stx2	Stx2C
+Stx2	Stx2D
+Stx2	Stx2E
+Stx2	Stx2F
+Stx2	Stx2G
+Stx2	Stx2H
+Stx2	Stx2I
+Stx2	Stx2J
+Stx2	Stx2K
+Stx2	Stx2L
+Stx2	Stx2M
+Stx2	Stx2N
+Stx2	Stx2O
+Folate Pathway Antagonist	Sulfamethoxazole
+Sulfonamide	Sulfonamide
+Beta-Lactam	Taniborbactam
+Oxazolidinone	Tedizolid
+Glycopeptide	Teicoplanin
+Macrolide	Telithromycin
+Lincosamide	Telithromycin
+Tellurium	Tellurium
+Beta-Lactam	Temocillin
+Tetracenomycin	Tetracenomycin
+Tetracycline	Tetracycline
+Intimin	Theta
+Phenicol	Thiamphenicol
+Thiostrepton	Thiostrepton
+Pleuromutilin	Tiamulin
+Beta-Lactam	Ticarcillin
+Beta-Lactam	Ticarcillin+Clavulanic Acid
+Tetracycline	Tigecycline
+Aminoglycoside	Tobramycin
+Folate Pathway Antagonist	Trimethoprim
+Macrolide	Tylosin
+Aminoglycoside	Unknown Aminoglycoside
+Beta-Lactam	Unknown Beta-Lactam
+Quinolone	Unknown Quinolone
+Glycopeptide	Vancomycin
+Streptogramin	Vernamycin B
+Tuberactinomycin	Viomycin
+Streptogramin	Virginiamycin
+Streptogramin	Virginiamycin M
+Streptogramin	Virginiamycin S
+Intimin	Xi
+Intimin	Ypsilon
+Intimin	Zeta
+Zinc	Zinc
+Bleomycin	Zorbamycin

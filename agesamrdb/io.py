@@ -126,7 +126,7 @@ def read_pointfinder_results(resfinder_dir: str) -> pd.DataFrame:
     df = pd.read_csv(f"{resfinder_dir}/PointFinder_results.txt", sep="\t")
     df["phenotype"] = df["Resistance"].str.split(",")
     df = df.explode("phenotype")
-    df["phenotype"] = df["phenotype"].apply(lambda k: k.strip().title())
+    df["phenotype"] = df["phenotype"].apply(lambda k: k.strip().replace("_", " ").title())
     df = df.drop_duplicates(["Mutation","phenotype"])
     df.rename(columns={"Mutation":"mutation","Nucleotide change":"nuc_change"},
             inplace=True)

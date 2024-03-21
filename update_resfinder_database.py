@@ -10,7 +10,8 @@ import pandas as pd
 
 from Bio import SeqIO
 
-from amrdb.models import Base, ResfinderSequence, Phenotype, ResfinderResult, \
+import agesamrdb
+from agesamrdb.models import Base, ResfinderSequence, Phenotype, ResfinderResult, \
         Sample, Contig, PointfinderResult, ISEScanResult, BaktaResult, \
         MobTyperResult, InVitroResult, PlasmidfinderResult, PhispyResults, \
         SpeciesfinderResult, pointfinder_phenotype_association_table, ToolVersion, \
@@ -18,7 +19,7 @@ from amrdb.models import Base, ResfinderSequence, Phenotype, ResfinderResult, \
         amrfinder_point_phenotype_association_table, \
         amrfinder_phenotype_association_table, resfinder_phenotype_association_table
 
-from amrdb.util import calc_sequence_hash, get_or_create
+from agesamrdb.util import calc_sequence_hash, get_or_create
 
 from sqlalchemy import create_engine, insert, text, inspect 
 from sqlalchemy.orm import Session, declarative_base
@@ -84,16 +85,12 @@ def read_amrfinder_database(amrfinder_db_dir):
 def read_phenotypes(resfinder_db_dir):
     name_split_regex = "([^_]*)[-_]([^_]*)_([A-Z]+_[A-Z0-9.]*|[A-Z0-9.]*):*.*$"
     df = pd.read_csv(f"{resfinder_db_dir}/phenotypes.txt", sep="\t")
-    df["Phenotype"] = df["Phenotype"].str.split(", ")
+    df["Phenotype"] = df["Phenotype"].str.split(",")
     df = df.explode("Phenotype")
+    df["Phenotype"] = df["Phenotype"].str.title().str.replace("_", " ").str.strip()
     df[["short_name","subseq_numbering","sequence_identifier"]] = \
             df["Gene_accession no."].str.extract(name_split_regex, expand=True)
-    phenotypes = df.drop_duplicates(["Phenotype","Class"])[["Phenotype","Class"]]
-    phenotypes = phenotypes[~phenotypes["Class"].str.contains(",")]
-    phenotypes = phenotypes.reset_index().drop("index",axis=1)
-    phenotypes = phenotypes.merge(df[["Phenotype","sequence_identifier"]], 
-            on="Phenotype")
-    return phenotypes
+    return df
 
 
 def read_pointfinder_phenotypes(pointfinder_db_dir):
@@ -176,17 +173,33 @@ def write_phenotypes(phenotypes_df, session, tool_model):
     e.g. previously added internal sequence receives new phenotype association
     if they are published in database with official name
     """
-    for groupname, sub_df in phenotypes_df.groupby(["Phenotype","Class"]):
+    for groupname, sub_df in phenotypes_df.groupby("Phenotype"):
+        phenotype_name = groupname.title().replace("_"," ")
         linked_sequences = session.query(tool_model).filter(
                 tool_model.accession.in_(
                     sub_df["sequence_identifier"].to_list())).all()
-        phenotype = get_or_create(session, Phenotype, phenotype=groupname[0],
-                class_name=groupname[1])
+        phenotype = get_or_create(session, Phenotype, phenotype=phenotype_name)
         for l in linked_sequences:
             if tool_model.__name__.startswith("Resfinder"):
                 phenotype.resfinder_sequences.append(l)
             elif tool_model.__name__.startswith("Amrfinder"):
                 phenotype.amrfinder_sequences.append(l)
+        session.add(phenotype)
+    session.commit()
+
+
+def initialize_phenotype_classes(session):
+    """
+    initialize phenotype - class table, manually curated to avoid wrong class
+    /substance associations, which are not readable automatically without errors
+    from resfinder or amrfinder.
+    TODO: might be better curated though
+    """
+    pkg_dir = os.path.dirname(os.path.abspath(agesamrdb.__file__))
+    phenotype_table_csv = os.path.join(pkg_dir,"data","phenotypes_classnames.tsv")
+    phenotype_df = pd.read_csv(phenotype_table_csv, sep="\t")
+    for i, row in phenotype_df.iterrows():
+        phenotype = get_or_create(session, Phenotype, **row)
         session.add(phenotype)
     session.commit()
 
@@ -200,15 +213,11 @@ def main():
     sequences_df = identify_columns(records)
     phenotypes_df = read_phenotypes(args.resfinder_db_dir)
     amrfinder_df = read_amrfinder_database(args.amrfinder_db_dir)
-    amrfinder_phenotype_df = amrfinder_df[["Phenotype","Class","accession"]]\
+    amrfinder_phenotype_df = amrfinder_df[["Phenotype","accession"]]\
             .rename(columns={"accession":"sequence_identifier"})
     amrfinder_phenotype_df["Phenotype"] = amrfinder_phenotype_df["Phenotype"].str.split("/")
     amrfinder_phenotype_df = amrfinder_phenotype_df.explode("Phenotype")
-    #TODO hacky intermediate solution to solve issues
-    # create a curated look-up table of phenotypes and class-associations,
-    # and initialize on first call!
-    amrfinder_phenotype_df["Class"] = amrfinder_phenotype_df["Class"].str.split("/")
-    amrfinder_phenotype_df = amrfinder_phenotype_df.explode("Class")
+    amrfinder_phenotype_df["Phenotype"] = amrfinder_phenotype_df["Phenotype"].str.title()
     amrfinder_df = amrfinder_df.drop(["Phenotype","Class"], axis=1)
 
     # establish connection to database
@@ -223,10 +232,12 @@ def main():
 
     # get all tables from database
     insp = inspect(engine)
+    install = False
     if not insp.has_table(ResfinderSequence.__table__.name):
         print("create new database")
         # create tables if not existing yet, only first initialization
         # assume others also not existing (i.e when run for first time)
+        install = True
         ResfinderSequence.__table__.create(engine) 
         AmrfinderSequence.__table__.create(engine)
         Sample.__table__.create(engine)
@@ -252,11 +263,18 @@ def main():
     # always drop phenotype association table and create newly
     if insp.has_table(resfinder_phenotype_association_table.name):
         resfinder_phenotype_association_table.drop(engine)
+    if insp.has_table(amrfinder_phenotype_association_table.name):
+        amrfinder_phenotype_association_table.drop(engine)
+
+    amrfinder_phenotype_association_table.create(engine)
     resfinder_phenotype_association_table.create(engine)
     session.commit()
 
     # connect the defined classes to the data in db:
     Base.prepare(engine)
+
+    if install:
+        initialize_phenotype_classes(session)
 
     # write database entries:
     print("start filling resfinder sequences to database")

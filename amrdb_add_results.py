@@ -3,9 +3,9 @@
 import os
 import argparse
 
-from amrdb.models import Base, Sample, ToolVersion
-from amrdb.interfaces import read_result, insert_into_db
-from amrdb.util import get_or_create
+from agesamrdb.models import Base, Sample, ToolVersion
+from agesamrdb.interfaces import read_result, insert_into_db
+from agesamrdb.util import get_or_create
 
 from sqlalchemy import create_engine, inspect 
 from sqlalchemy.orm import Session
