@@ -103,7 +103,7 @@ class Phenotype(Base):
     )
     class_name: Mapped[str] = mapped_column(String(50), nullable=True)
     phenotype: Mapped[str] = mapped_column(String(50), nullable=False)
-    invitroresults: Mapped["InVitroResult"] = relationship(back_populates="phenotype_associated")
+    invitroresults: Mapped[List["InVitroResult"]] = relationship(back_populates="phenotype_associated")
 
 
 class ResfinderResult(Base):
