@@ -1,0 +1,182 @@
+class_name	phenotype
+INTIMIN	ALPHA
+Aminoglycoside	Amikacin
+AMINOGLYCOSIDE	AMINOGLYCOSIDE
+Beta-lactam	Amoxicillin
+Beta-lactam	Amoxicillin+Clavulanic acid
+Beta-lactam	Ampicillin
+Beta-lactam	Ampicillin+Clavulanic acid
+Aminoglycoside	Apramycin
+Aminoglycoside	Arbekacin
+ARSENIC	ARSENATE
+ARSENIC	ARSENIC
+ARSENIC	ARSENITE
+Aminoglycoside	Astromicin
+AVILAMYCIN	AVILAMYCIN
+Macrolide	Azithromycin
+Beta-lactam	Aztreonam
+BACITRACIN	BACITRACIN
+INTIMIN	BETA
+BETA-LACTAM	BETA-LACTAM
+BLEOMYCIN	BLEOMYCIN
+Aminoglycoside	Butiromycin
+Aminoglycoside	Butirosin
+CADMIUM	CADMIUM
+TUBERACTINOMYCIN	CAPREOMYCIN
+BETA-LACTAM	CARBAPENEM
+Macrolide	Carbomycin
+Beta-lactam	Cefepime
+BETA-LACTAM	CEFIDEROCOL
+Beta-lactam	Cefixime
+Beta-lactam	Cefotaxime
+Beta-lactam	Cefotaxime+Clavulanic acid
+Beta-lactam	Cefoxitin
+BETA-LACTAM	CEFTAROLINE
+Beta-lactam	Ceftazidime
+Beta-lactam	Ceftazidime+Avibactam
+Beta-lactam	Ceftiofur
+Beta-lactam	Ceftriaxone
+BETA-LACTAM	CEPHALOSPORIN
+Beta-lactam	Cephalothin
+Beta-lactam	Cephalotin
+PHENICOL	CHLORAMPHENICOL
+CHROMATE	CHROMATE
+Quinolone	Ciprofloxacin
+MACROLIDE	CLARITHROMYCIN
+Lincosamide	Clindamycin
+COBALT	COBALT
+Polymyxin	Colistin
+Streptogramin A	Dalfopristin
+Aminoglycoside	Dibekacin
+Tetracycline	Doxycycline
+EFFLUX	EFFLUX
+INTIMIN	EPSILON
+Beta-lactam	Ertapenem
+Macrolide	Erythromycin
+Amphenicol	Florfenicol
+FLUORIDE	FLUORIDE
+FLUOROQUINOLONE	FLUOROQUINOLONE
+Aminoglycoside	Fortimicin
+Fosfomycin	Fosfomycin
+Steroid antibacterial	Fusidic acid
+INTIMIN	GAMMA
+Aminoglycoside	Gentamicin
+GOLD	GOLD
+Aminoglycoside	Hygromycin
+Beta-lactam	Imipenem
+INTIMIN	IOTA
+Aminoglycoside	Isepamicin
+Aminoglycoside	Kanamycin
+INTIMIN	KAPPA
+Aminoglycoside	Kasugamycin
+INTIMIN	LAMBDA
+LEAD	LEAD
+Lincosamide	Lincomycin
+LINCOSAMIDE	LINCOSAMIDE
+OXAZOLIDINONE	LINEZOLID
+Aminoglycoside	Lividomycin
+MACROLIDE	MACROLIDE
+IONOPHORE	MADURAMICIN
+MERCURY	MERCURY
+Beta-lactam	Meropenem
+BETA-LACTAM	METHICILLIN
+Nitroimidazole	Metronidazole
+Tetracycline	Minocycline
+MUPIROCIN	MUPIROCIN
+IONOPHORE	NARASIN
+Aminoglycoside	Neomycin
+Aminoglycoside	Netilmicin
+NICKEL	NICKEL
+NITROIMIDAZOLE	NITROIMIDAZOLE
+INTIMIN	NU
+Macrolide	Oleandomycin
+ARSENIC	ORGANOARSENIC
+MERCURY	ORGANOMERCURY
+STREPTOGRAMIN	OSTREOGRYCIN
+OXAZOLIDINONE	OXAZOLIDINONE
+Aminoglycoside	Paromomycin
+Beta-lactam	Penicillin
+PHENICOL	PHENICOL
+MERCURY	PHENYLMERCURY
+Beta-lactam	Piperacillin
+Beta-lactam	Piperacillin+Clavulanic acid
+Beta-lactam	Piperacillin+Tazobactam
+PLEUROMUTILIN	PLEUROMUTILIN
+STREPTOGRAMIN	PRISTINAMYCIN
+STREPTOGRAMIN	Pristinamycin IA
+STREPTOGRAMIN	Pristinamycin IIA
+QUATERNARY_AMMONIUM	QUATERNARY_AMMONIUM
+QUINOLONE	QUINOLONE
+Streptogramin B	Quinupristin
+PLEUROMUTILIN	RETAPAMULIN
+INTIMIN	RHO
+Aminoglycoside	Ribostamycin
+Rifamycin	Rifampicin
+RIFAMYCIN	RIFAMPIN
+RIFAMYCIN	RIFAMYCIN
+IONOPHORE	SALINOMYCIN
+SILVER	SILVER
+Aminoglycoside	Sisomicin
+Aminoglycoside	Spectinomycin
+Macrolide	Spiramycin
+STREPTOGRAMIN	STREPTOGRAMIN
+STREPTOGRAMIN	STREPTOGRAMIN_A
+STREPTOGRAMIN	STREPTOGRAMIN_B
+Aminoglycoside	Streptomycin
+STREPTOTHRICIN	STREPTOTHRICIN
+STX1	STX1A
+STX1	STX1C
+STX1	STX1D
+STX1	STX1E
+STX2	STX2A
+STX2	STX2B
+STX2	STX2C
+STX2	STX2D
+STX2	STX2E
+STX2	STX2F
+STX2	STX2G
+STX2	STX2H
+STX2	STX2I
+STX2	STX2J
+STX2	STX2K
+STX2	STX2L
+STX2	STX2M
+STX2	STX2N
+STX2	STX2O
+Folate pathway antagonist	Sulfamethoxazole
+SULFONAMIDE	SULFONAMIDE
+BETA-LACTAM	TANIBORBACTAM
+OXAZOLIDINONE	TEDIZOLID
+Glycopeptide	Teicoplanin
+Macrolide	Telithromycin
+LINCOSAMIDE	TELITHROMYCIN
+TELLURIUM	TELLURIUM
+Beta-lactam	Temocillin
+TETRACENOMYCIN	TETRACENOMYCIN
+Tetracycline	Tetracycline
+INTIMIN	THETA
+PHENICOL	THIAMPHENICOL
+THIOSTREPTON	THIOSTREPTON
+Pleuromutilin	Tiamulin
+Beta-lactam	Ticarcillin
+Beta-lactam	Ticarcillin+Clavulanic acid
+Beta-lactam	Ticarcillin+Clavulanic acid,Aztreonam
+Tetracycline	Tigecycline
+Aminoglycoside	Tobramycin
+Folate pathway antagonist	Trimethoprim
+Macrolide	Tylosin
+Aminoglycoside	Unknown Aminoglycoside
+Beta-lactam	Unknown Beta-lactam
+Quinolone	Unknown Quinolone
+Glycopeptide	Vancomycin
+STREPTOGRAMIN	VERNAMYCIN_B
+TUBERACTINOMYCIN	VIOMYCIN
+STREPTOGRAMIN	VIRGINIAMYCIN
+Streptogramin A	Virginiamycin M
+Streptogramin B	Virginiamycin S
+STREPTOGRAMIN	VIRGINIAMYCIN_M
+INTIMIN	XI
+INTIMIN	YPSILON
+INTIMIN	ZETA
+ZINC	ZINC
+BLEOMYCIN	ZORBAMYCIN
