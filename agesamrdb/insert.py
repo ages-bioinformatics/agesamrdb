@@ -71,9 +71,15 @@ def insert_into_amrfinder_results(df, associated_sample, session, **kwargs):
     added_results = []
     for i, row in df.iterrows():
         contig_kwargs = {"name": row["contig_name"]}
+
         # identify linked contig and sequence (might create new contig)
-        associated_contig, sequence = _get_linked_sequence_and_contig(row,
-                associated_sample, session, "amrfinder", contig_kwargs)
+        point_result = ("point" in row["method"].lower())
+        if point_result:
+            associated_contig = get_or_create(session, Contig,
+                    sample_associated=associated_sample, **contig_kwargs)
+        else:
+            associated_contig, sequence = _get_linked_sequence_and_contig(row,
+                    associated_sample, session, "amrfinder", contig_kwargs)
 
         # specific fields not needed in both tables
         phenotype = row["Phenotype"].title()
@@ -84,7 +90,7 @@ def insert_into_amrfinder_results(df, associated_sample, session, **kwargs):
                 "qc_issues","orientation","method"]]
 
         # differentiate between pointresult and acquired gene result
-        if "point" in row["method"].lower():
+        if point_result:
             phenotypes = [get_or_create(session, Phenotype,
                 phenotype=p.strip().title()) for p in phenotype.split("/")]
             result = AmrfinderPointResult(phenotypes=phenotypes,
