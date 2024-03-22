@@ -66,6 +66,8 @@ def read_resfinder_databases(resfinder_db_dir):
 
 
 def read_amrfinder_database(amrfinder_db_dir):
+    # TODO read table for families too - currently there are 2000+ sequences
+    # which have no phenotype associated (because part of families)
     entries = []
     db_file = os.path.join(amrfinder_db_dir,"AMRProt")
     for seqrecord in SeqIO.parse(db_file, "fasta"):
