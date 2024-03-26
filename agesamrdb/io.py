@@ -211,6 +211,7 @@ def read_amrfinder_results(input_dir: str) -> pd.DataFrame:
     df = df[[v for v in column_mapping.values()]].copy()
     df["is_core"] = (df["scope"] == "core")
     df["mutation"] = df["name"]
+    df["contig_name"] = df["contig_name"].astype(str)
 
     # parse fasta-result
     df_sequences = parse_fasta_hits(os.path.join(input_dir,"amrfinder_nucleotides.fasta"),
