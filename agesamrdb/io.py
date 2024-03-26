@@ -83,6 +83,7 @@ def read_resfinder_results(resfinder_dir: str,
     # read tabluar resfinder output to df
     df_results = pd.read_csv(f"{resfinder_dir}/ResFinder_results_tab.txt",
             sep="\t")
+    df_results["Contig"] = df_results["Contig"].astype(str)
 
     # handle case that no resistance gene was found
     if df_results.empty:
