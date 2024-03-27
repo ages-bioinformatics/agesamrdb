@@ -83,10 +83,13 @@ def main():
     associated_sample = get_or_create(session, Sample, **sample_args)
 
     # create db entry
+    mode = args.mode
+    if args.method == "resfinder" and not args.assembly:
+        mode = "fastq"
     version_args = {
             "db_version": args.db_version,
             "tool_name": args.method,
-            "input_type": args.mode,
+            "input_type": mode,
             "tool_version": args.tool_version,
         }
     # remove optional parameters which are nullable (None not accepted as value)
