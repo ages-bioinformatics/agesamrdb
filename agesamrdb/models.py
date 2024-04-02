@@ -151,6 +151,7 @@ class Sample(Base):
     speciesfinderresults: Mapped[List["SpeciesfinderResult"]] = relationship(back_populates="sample_associated")
     amrfinderresults: Mapped[List["AmrfinderResult"]] = relationship(back_populates="sample_associated")
     amrfinderpointresults: Mapped[List["AmrfinderPointResult"]] = relationship(back_populates="sample_associated")
+    mlstresults: Mapped[List["MlstResult"]] = relationship(back_populates="sample_associated")
 
 
 class Contig(Base):
@@ -436,6 +437,22 @@ class SpeciesfinderResult(Base):
 
     # Relationships
     sample_associated: Mapped["Sample"] = relationship(back_populates="speciesfinderresults")
+    version_associated: Mapped["ToolVersion"] = relationship()
+
+
+class MlstResult(Base):
+    __tablename__ = "mlst_result"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    scheme_name: Mapped[str] = mapped_column(String(100), nullable=True)
+    sequence_type: Mapped[int] = mapped_column(Integer(), nullable=True)
+    allele_types: Mapped[str] = mapped_column(String(500), nullable=True)
+
+    # Foreign Keys
+    sample_id: Mapped[int] = mapped_column(ForeignKey("sample.id", ondelete="CASCADE"), nullable=False)
+    version_id: Mapped[int] = mapped_column(ForeignKey("tool_version.id", ondelete="CASCADE"), nullable=False)
+
+    # Relationships
+    sample_associated: Mapped["Sample"] = relationship(back_populates="mlstresults")
     version_associated: Mapped["ToolVersion"] = relationship()
 
 

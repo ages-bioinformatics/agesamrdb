@@ -1,12 +1,14 @@
 import pandas as pd
 from .models import Sample, ISEScanResult, BaktaResult, MobTyperResult, \
-        PlasmidfinderResult, PhispyResults, ResfinderSequence, AmrfinderSequence
+        PlasmidfinderResult, PhispyResults, ResfinderSequence, AmrfinderSequence, \
+        SpeciesfinderResult, MlstResult
 from .io import read_isescan_results, read_bakta_results, read_resfinder_results, \
         read_pointfinder_results, read_mobtyper_results, read_plasmidfinder_results, \
-        read_phispy_results, read_speciesfinder_results, read_amrfinder_results
+        read_phispy_results, read_speciesfinder_results, read_amrfinder_results, \
+        read_mlst_results
 from .insert import insert_generic_contig_results, insert_into_resfinder_results, \
         insert_into_pointfinder_results, add_new_sequences, add_contig_info, \
-        insert_into_speciesfinder_results, insert_into_amrfinder_results
+        insert_generic_sample_results, insert_into_amrfinder_results \
 
 
 # column names that are actually imported in database as constants
@@ -62,6 +64,8 @@ def read_result(inputpath: str, method: str, **kwargs) -> pd.DataFrame:
         return read_speciesfinder_results(inputpath)
     elif method == "amrfinder":
         return read_amrfinder_results(inputpath)
+    elif method == "mlst":
+        return read_mlst_results(inputpath)
     else:
         raise LookupError(f"Method not implemented: {method}")
 
@@ -102,11 +106,12 @@ def insert_into_db(df: pd.DataFrame, method: str, associated_sample: Sample,
                 to_db_columns=PHISPY_DB_COLUMNS, model=PhispyResults, 
                 create_contig=True, contig_name_col='contig_name', **kwargs)
     elif method == "speciesfinder":
-        return insert_into_speciesfinder_results(df, associated_sample, session, **kwargs)
+        return insert_generic_sample_results(df, associated_sample, session, SpeciesfinderResult, **kwargs)
     elif method == "amrfinder":
         add_new_sequences(df[~df["method"].str.contains("POINT")], session, AmrfinderSequence, ["long_name","is_core"])
         return insert_into_amrfinder_results(df, associated_sample, session, **kwargs)
+    elif method == "mlst":
+        return insert_generic_sample_results(df, associated_sample, session, MlstResult, **kwargs)
     else:
         raise LookupError (f"Method not implemented: {method}")
-
 

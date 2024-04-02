@@ -192,13 +192,19 @@ def insert_into_pointfinder_results(df, associated_sample, session, **kwargs):
     session.commit()
     
 
-def insert_into_speciesfinder_results(df, associated_sample, session, **kwargs):
+def insert_generic_sample_results(df, associated_sample, session, model,
+        to_db_columns=None, **kwargs):
     """
-    Add Speciesfinderresults to database
+    write results to database, generic function
+    takes a model class as parameter and to_db_columns (optional). model
+    needs only associated sample, which needs to exist before (sample object)
+    if no to_db columns are specified, all are taken
     """
+    df = df.replace([np.nan], [None])
+    if to_db_columns:
+        df = df[to_db_columns]
     for i, row in df.iterrows():
-        session.add(SpeciesfinderResult(**row, sample_associated=associated_sample,
-            **kwargs))
+        session.add(model(**row, sample_associated=associated_sample, **kwargs))
     session.commit()
 
 
@@ -226,3 +232,4 @@ def insert_generic_contig_results(df, associated_sample, session, model,
             session.add(model(contig_associated=associated_contig, **row, **kwargs))
 
     session.commit()
+

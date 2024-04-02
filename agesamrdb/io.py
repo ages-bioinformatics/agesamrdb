@@ -232,3 +232,12 @@ def read_amrfinder_results(input_dir: str) -> pd.DataFrame:
     df = df.drop_duplicates(subset=["contig_name","ref_pos_start","ref_pos_end","orientation","sequence"])
 
     return df
+
+
+def read_mlst_results(input_file: str) -> pd.DataFrame:
+    """
+    """
+    df = pd.read_csv(input_file, sep=",", header=None)
+    df["allele_types"] = df.iloc[:,3:].apply(", ".join, axis=1)
+    df = df.rename(columns={1: "scheme_name", 2:"sequence_type"})
+    return df[["scheme_name","sequence_type","allele_types"]]

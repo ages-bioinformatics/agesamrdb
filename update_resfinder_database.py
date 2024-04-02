@@ -15,7 +15,7 @@ from agesamrdb.models import Base, ResfinderSequence, Phenotype, ResfinderResult
         Sample, Contig, PointfinderResult, ISEScanResult, BaktaResult, \
         MobTyperResult, InVitroResult, PlasmidfinderResult, PhispyResults, \
         SpeciesfinderResult, pointfinder_phenotype_association_table, ToolVersion, \
-        AmrfinderSequence, AmrfinderResult, AmrfinderPointResult, \
+        AmrfinderSequence, AmrfinderResult, AmrfinderPointResult, MlstResult, \
         amrfinder_point_phenotype_association_table, \
         amrfinder_phenotype_association_table, resfinder_phenotype_association_table
 
@@ -46,6 +46,14 @@ parser.add_argument('--resfinder_db', dest='resfinder_db_dir',
 parser.add_argument('--amrfinder_db', dest='amrfinder_db_dir',
         help="path to amrfinder_db previously downloaded",
         required=False, default='/db/amrfinder/latest')
+
+
+table_initialization_order = [
+        ResfinderSequence, AmrfinderSequence, Sample, Contig, ToolVersion, ResfinderResult,
+        AmrfinderResult, AmrfinderPointResult, PointfinderResult, BaktaResult,
+        MobTyperResult, Phenotype, InVitroResult, PlasmidfinderResult,
+        ISEScanResult, PhispyResults, SpeciesfinderResult, MlstResult,
+]
 
 
 def read_resfinder_databases(resfinder_db_dir):
@@ -235,32 +243,18 @@ def main():
     # get all tables from database
     insp = inspect(engine)
     install = False
-    if not insp.has_table(ResfinderSequence.__table__.name):
-        print("create new database")
-        # create tables if not existing yet, only first initialization
-        # assume others also not existing (i.e when run for first time)
-        install = True
-        ResfinderSequence.__table__.create(engine) 
-        AmrfinderSequence.__table__.create(engine)
-        Sample.__table__.create(engine)
-        Contig.__table__.create(engine)
-        ToolVersion.__table__.create(engine)
-        ResfinderResult.__table__.create(engine)
-        AmrfinderResult.__table__.create(engine)
-        AmrfinderPointResult.__table__.create(engine)
-        PointfinderResult.__table__.create(engine)
-        #ISEScanResult.__table__.create(engine)
-        BaktaResult.__table__.create(engine)
-        MobTyperResult.__table__.create(engine)
-        Phenotype.__table__.create(engine)
-        InVitroResult.__table__.create(engine)
-        PlasmidfinderResult.__table__.create(engine)
-        ISEScanResult.__table__.create(engine)
-        PhispyResults.__table__.create(engine)
-        SpeciesfinderResult.__table__.create(engine)
-        pointfinder_phenotype_association_table.create(engine)
-        amrfinder_point_phenotype_association_table.create(engine)
-        amrfinder_phenotype_association_table.create(engine)
+    # prepare not yet existing class-based tables
+    for table_class in table_initialization_order:
+        if not insp.has_table(table_class.__table__.name):
+            print(f"create new table: {table_class.__table__.name}")
+            install = True # initialize phenotype classes later
+            table_class.__table__.create(engine)
+
+    # prepare not yet existing association-tables:
+    for table in [pointfinder_phenotype_association_table, 
+            amrfinder_point_phenotype_association_table]:
+        if not insp.has_table(table.name):
+            table.create(engine)
     
     # always drop phenotype association table and create newly
     if insp.has_table(resfinder_phenotype_association_table.name):

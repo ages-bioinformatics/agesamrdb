@@ -18,3 +18,4 @@ python amrdb_add_results.py --method bakta -i "testdata/bakta/NRLAR-22-ESBL-22-0
 python amrdb_add_results.py --method mobtyper -i "testdata/mobtyper_results.txt" --external_id 1 --tool_version "test"
 python amrdb_add_results.py --method plasmidfinder -i "testdata/plasmidfinder_results.tsv" --tool_version "test" --external_id 1
 python amrdb_add_results.py --method speciesfinder -i "testdata/speciesfinder.txt" --tool_version "test" --db_version "SILVA_138.1_SSUParc" --external_id 1
+python amrdb_add_results.py --method mlst -i "testdata/mlst_output.csv" --external_id 1 --tool_version "test"
