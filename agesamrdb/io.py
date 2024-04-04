@@ -3,7 +3,8 @@ import os
 import pandas as pd
 import json
 
-from .util import calc_sequence_hash, gene_quality_control
+from .util import calc_sequence_hash, gene_quality_control, \
+    apply_offset_to_partial_contigs
 
 def read_isescan_results(input_file: str) -> pd.DataFrame:
     """
@@ -18,7 +19,7 @@ def read_isescan_results(input_file: str) -> pd.DataFrame:
             }
     df = df.rename(columns=column_mapping)
     df["complete"] = (df["type"] == "c")
-
+    df = apply_offset_to_partial_contigs(df)
     return df
 
 
@@ -29,7 +30,7 @@ def read_bakta_results(input_file: str) -> pd.DataFrame:
     header = ["seqID","product_type","ref_pos_start","ref_pos_end",
             "orientation","locus_tag","gene_name","product","db_xref"]
     df = pd.read_csv(input_file, sep="\t", comment="#", names=header)
-
+    df = apply_offset_to_partial_contigs(df)
     return df
 
 
@@ -158,6 +159,7 @@ def read_phispy_results(input_file: str) -> pd.DataFrame:
                 'start_attR', 'end_attR', 'sequence_attL', 'sequence_attR', 'description']
     df = pd.read_csv(input_file, index_col=False, header=None, names=columns, sep='\t')
     print(df)
+    df = apply_offset_to_partial_contigs(df, "contig_name")
     return df 
     
 

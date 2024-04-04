@@ -2,6 +2,9 @@
 from Bio import SeqRecord
 import zlib
 
+ADAPT_COLS = ["Start","Stop","isBegin","isEnd","start1","end1","start2","end2","orfBegin","orfEnd",
+        "start","stop","start_attL","end_attL","start_attR","end_attR","ref_pos_start","ref_pos_end"]
+
 def calc_sequence_hash(sequence: str):
     return hex(zlib.crc32(sequence.encode('ascii')))
 
@@ -40,4 +43,19 @@ def get_or_create(session, model, **kwargs):
         session.add(instance)
         session.commit()
         return instance
+
+
+def apply_offset_to_partial_contigs(df, contig_id_col="seqID"):
+    df[[f"new_{contig_id_col}", "offset"]] = df[contig_id_col].str.extract(r"(\S+)\:(\d+)-\d+$", expand=True)
+    # check if not applicable (nothing got extracted)
+    if not df["offset"].isna().all():
+        df["offset"] = df["offset"].fillna(0)
+        df["offset"] = df["offset"].astype(int)
+        for col in df.columns:
+            if col in ADAPT_COLS:
+                df[col] = df[col] + df["offset"]
+        df[contig_id_col] = df[f"new_{contig_id_col}"]
+
+    df = df.drop(["offset",f"new_{contig_id_col}"], axis=1)
+    return df
 
