@@ -43,7 +43,7 @@ def read_mobtyper_results(input_file: str) -> pd.DataFrame:
     df = pd.read_csv(input_file, sep="\t")
     column_mapping = {c: c.replace("(s)","") for c in df.columns if "(s)" in c}
     column_mapping["gc"] = "gc_content"
-    df["seqID"] = df["seqID"].astype(str)
+    df["sample_id"] = df["sample_id"].astype(str)
     df["seqID"] = df["sample_id"].str.split(" ", expand=True)[0]
     df = df.rename(columns=column_mapping)
 
