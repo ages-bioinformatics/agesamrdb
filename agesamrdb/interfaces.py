@@ -109,6 +109,8 @@ def insert_into_db(df: pd.DataFrame, method: str, associated_sample: Sample,
         return insert_generic_sample_results(df, associated_sample, session, SpeciesfinderResult, **kwargs)
     elif method == "amrfinder":
         add_new_sequences(df[~df["method"].str.contains("POINT")], session, AmrfinderSequence, ["long_name","is_core"])
+        if assembly_path:
+            df = add_contig_info(df, assembly_path, infere_orientation=False)
         return insert_into_amrfinder_results(df, associated_sample, session, **kwargs)
     elif method == "mlst":
         return insert_generic_sample_results(df, associated_sample, session, MlstResult, **kwargs)

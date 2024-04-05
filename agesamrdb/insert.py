@@ -71,6 +71,8 @@ def insert_into_amrfinder_results(df, associated_sample, session, **kwargs):
     added_results = []
     for i, row in df.iterrows():
         contig_kwargs = {"name": row["contig_name"]}
+        if row["contig_len"]:
+            contig_kwargs["length"] = row["contig_len"]
 
         # identify linked contig and sequence (might create new contig)
         point_result = ("point" in row["method"].lower())
@@ -106,7 +108,7 @@ def insert_into_amrfinder_results(df, associated_sample, session, **kwargs):
     session.add_all(added_results)
 
 
-def add_contig_info(df, assembly_file):
+def add_contig_info(df, assembly_file, infere_orientation=True):
     """
     if applicable, parses assembly and reads orientation of detected gene
     together with total length of contig (for displaying purposes)
@@ -121,6 +123,11 @@ def add_contig_info(df, assembly_file):
 
     df["contig_len"] = df["contig_name"].map(contig_lens)
 
+    if not infere_orientation:
+        print(df)
+        return df
+
+    # infere orientation of hits on contig (not provided by resfinder atm)
     ori = {}
     for contig_name, sub in df.groupby("contig_name"):
         for i, row in sub.iterrows():
