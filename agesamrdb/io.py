@@ -19,6 +19,7 @@ def read_isescan_results(input_file: str) -> pd.DataFrame:
             }
     df = df.rename(columns=column_mapping)
     df["complete"] = (df["type"] == "c")
+    df["seqID"] = df["seqID"].astype(str)
     df = apply_offset_to_partial_contigs(df)
     return df
 
@@ -30,6 +31,7 @@ def read_bakta_results(input_file: str) -> pd.DataFrame:
     header = ["seqID","product_type","ref_pos_start","ref_pos_end",
             "orientation","locus_tag","gene_name","product","db_xref"]
     df = pd.read_csv(input_file, sep="\t", comment="#", names=header)
+    df["seqID"] = df["seqID"].astype(str)
     df = apply_offset_to_partial_contigs(df)
     return df
 
@@ -41,6 +43,7 @@ def read_mobtyper_results(input_file: str) -> pd.DataFrame:
     df = pd.read_csv(input_file, sep="\t")
     column_mapping = {c: c.replace("(s)","") for c in df.columns if "(s)" in c}
     column_mapping["gc"] = "gc_content"
+    df["seqID"] = df["seqID"].astype(str)
     df["seqID"] = df["sample_id"].str.split(" ", expand=True)[0]
     df = df.rename(columns=column_mapping)
 
@@ -150,7 +153,7 @@ def read_plasmidfinder_results(input_file: str) -> pd.DataFrame:
     else:
         df[['query_length', 'template_length']] = df['Query / Template length'].str.split(' / ', n=1, expand=True).astype(int)
         df[['ref_pos_start', 'ref_pos_end']] = df['Position in contig'].str.split('\.\.', n=1, expand=True).astype(int)
-        df['Contig'] = df['Contig'].str.split(" ", expand=True)[0]
+        df['Contig'] = df['Contig'].astype(str).str.split(" ", expand=True)[0]
         df = df. rename(columns=column_mapping)
         df = df[columns]
     return df
@@ -159,6 +162,7 @@ def read_phispy_results(input_file: str) -> pd.DataFrame:
     columns = ['prophage_number', 'contig_name', 'start' ,'stop', 'start_attL', 'end_attL', 
                 'start_attR', 'end_attR', 'sequence_attL', 'sequence_attR', 'description']
     df = pd.read_csv(input_file, index_col=False, header=None, names=columns, sep='\t')
+    df["contig_name"] = df["contig_name"].astype(str)
     print(df)
     df = apply_offset_to_partial_contigs(df, "contig_name")
     return df 
