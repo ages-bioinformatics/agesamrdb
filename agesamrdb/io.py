@@ -243,6 +243,7 @@ def read_amrfinder_results(input_dir: str) -> pd.DataFrame:
 
 def read_mlst_results(input_file: str) -> pd.DataFrame:
     """
+    tabular input for mlst output (use --csv flag for mlst)
     """
     df = pd.read_csv(input_file, sep=",", header=None, na_values=["-"])
     df["allele_types"] = df.iloc[:,3:].apply(", ".join, axis=1)
