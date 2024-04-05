@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup (
       name = "agesamrdb",
-      version = 1.0,
+      version = 1.1,
       description = "",
       author = "Patrick Hyden, Tobias Mösenbacher",
       author_email = "patrick-christian.hyden@ages.at",
