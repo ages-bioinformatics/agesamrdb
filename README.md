@@ -48,8 +48,9 @@ Depending on the `--method` argument these are:
 | plasmidfinder  | path/to/plasmidfinder_results.tsv  |
 | speciesfinder | path/to/data.txt          |
 | amrfinder  | path/to/amrfinder_directory  |
+| mlst       | path/to/mlst.csv             |
 
-For ResFinder, there is an option to import the fasta-file (`--assembly`). This will initialize and create contig elements in the database. It is required to make best use of the visualisation webUI with dna_features_viewer.  
+For ResFinder and AMRFinder, there is an option to import the fasta-file (`--assembly`). This will initialize and create contig elements in the database.  
 Also, ResFinder output could be created from fastq-input. In this case use the `--mode fastq` parameter. This way it is not possible to extract coordinates of the found genes and `--assembly` input will not work.  
 Note that method amrfinder takes a directory as input and expects two files named `amrfinder_results.txt`
 and `amrfinder_nucleotides.fasta` in this directory.
@@ -60,5 +61,6 @@ Bakta should be run using `--keep-contig-headers` flag.
 mob_suite input should be generated using `mob_typer`.  
 AMRFinderPlus should be run with `--nucleotide_output amrfinder_output/amrfinder_nucleotides.fasta` and 
 `-o amrfinder_output/amrfinder_results.txt` (and `--organism` if applicable), while `amrfinder_output` is the
-directory used as input path for the import script.
+directory used as input path for the import script.  
+mlst should be run using `--csv` flag.  
 Other tools can be run with default/user prefered parameters.  
